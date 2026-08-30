@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-slate-200 font-sans antialiased;
+    background-image: radial-gradient(
+        1200px 600px at 80% -10%,
+        rgba(124, 58, 237, 0.12),
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 500px at -10% 10%,
+        rgba(34, 211, 238, 0.06),
+        transparent 55%
+      );
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(124, 58, 237, 0.35);
+  }
+
+  /* Slim scrollbars that match the dark shell. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a3a transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #272736;
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #3a3a4d;
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  .fs-card {
+    @apply rounded-xl border border-line bg-ink-850/80 backdrop-blur-sm shadow-card;
+  }
+
+  .fs-input {
+    @apply w-full rounded-lg border border-line bg-ink-900 px-3 py-2.5 text-sm text-slate-100
+      placeholder:text-slate-500 outline-none transition
+      focus:border-primary focus:ring-2 focus:ring-primary/30;
+  }
+
+  .fs-label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+  }
+
+  .fs-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+      transition disabled:cursor-not-allowed disabled:opacity-50 select-none;
+  }
+  .fs-btn-primary {
+    @apply fs-btn bg-primary text-white hover:bg-primary-hover
+      shadow-[0_6px_20px_-8px_rgba(124,58,237,0.8)];
+  }
+  .fs-btn-ghost {
+    @apply fs-btn border border-line bg-ink-800 text-slate-200 hover:bg-ink-700;
+  }
+  .fs-btn-danger {
+    @apply fs-btn border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20;
+  }
+
+  /* Kanban stage badges. */
+  .fs-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+}
