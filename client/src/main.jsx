@@ -14,14 +14,25 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Toaster
           position="top-right"
           toastOptions={{
+            // Theme tokens from index.css — follows the light/dark shell.
             style: {
-              background: '#15151F',
-              color: '#E2E8F0',
-              border: '1px solid #2A2A3A',
+              background: 'rgb(var(--ink-800))',
+              color: 'rgb(var(--slate-200))',
+              border: '1px solid rgb(var(--line))',
               fontSize: '14px',
             },
-            success: { iconTheme: { primary: '#10B981', secondary: '#0B0B12' } },
-            error: { iconTheme: { primary: '#EF4444', secondary: '#0B0B12' } },
+            success: {
+              iconTheme: {
+                primary: '#10B981',
+                secondary: 'rgb(var(--ink-900))',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: 'rgb(var(--ink-900))',
+              },
+            },
           }}
         />
       </AuthProvider>

@@ -45,7 +45,7 @@ export default function ProjectCard({ project, onOpen, overlay = false }) {
           <div className="mb-2 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-ink-950">
             <Film size={22} className="text-slate-700" />
           </div>
-          <h4 className="truncate text-sm font-semibold text-slate-100 group-hover:text-white">
+          <h4 className="truncate text-sm font-semibold text-slate-100 group-hover:text-slate-100">
             {project.title}
           </h4>
           {clientName && (

@@ -4,6 +4,7 @@ const Project = require('../models/Project');
 const ReviewLink = require('../models/ReviewLink');
 const generateToken = require('../utils/tokenGenerator');
 const { signToken } = require('../utils/jwt');
+const { sendReviewLinkEmail } = require('../utils/emailTemplates');
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -92,9 +93,21 @@ const generateMagicLink = async (req, res) => {
   });
 
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const reviewUrl = `${clientUrl}/portal/${link.token}`;
+
+  // Email the reviewer their link (fire-and-forget: a mail outage must never
+  // fail the API response — sendMail swallows and logs errors).
+  sendReviewLinkEmail({
+    to: project.clientId.contactEmail,
+    clientName: project.clientId.clientName,
+    projectTitle: project.title,
+    url: reviewUrl,
+    expiresAt: link.expiresAt,
+  });
+
   res.status(201).json({
     token: link.token,
-    url: `${clientUrl}/portal/${link.token}`,
+    url: reviewUrl,
     expiresAt: link.expiresAt,
     project: { _id: project._id, title: project.title },
   });

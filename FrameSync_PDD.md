@@ -387,6 +387,11 @@ All media files reside in private AWS S3 buckets with public access fully blocke
 ]
 ```
 
+### 10.3 Pluggable Storage Backends (Dev Mode)
+The storage engine is a facade (`utils/storage.js`) selected by `STORAGE_MODE`:
+* **`s3` (default, production):** presigned URLs against AWS S3 / MinIO — the API never touches media bytes.
+* **`local` (dev/testing):** disk-backed backend (`utils/localStore.js`) that reimplements the presigned contract — HMAC-SHA256-signed, expiring, content-type-bound URLs — served by `routes/localMediaRoutes.js` with full HTTP `Range` support (video seeking) and streamed reads/writes (constant memory). Media lands in `server/storage/` on the machine's SSD; the API proxies bytes in this mode, which is acceptable for local testing only.
+
 ---
 
 ## 11. Technical Risk Analysis & Architectural Tradeoffs
@@ -434,15 +439,19 @@ PHASE 6: Client Review Portal & Level Lock
 ├── Immutable Digital Approval Workflow
 └── Master Asset Conditional Delivery Gating
 
-PHASE 7: Real-Time Sync & Notifications
+PHASE 7: Real-Time Sync & Notifications [COMPLETED]
 ├── Socket.io Room Clustering & Live Presence Avatars
 ├── Real-Time Comment Streaming & Status Broadcasts
 └── Automated Nodemailer Event Notifications
+    (SMTP via server/.env; emails: review link → client, new feedback &
+     digital sign-off → agency admins; degrades to log-only without SMTP)
 
-PHASE 8: ffmpeg.wasm Compression & Polish
+PHASE 8: ffmpeg.wasm Compression & Polish [COMPLETED]
 ├── In-Browser WASM Transcoding Engine & Progress Bar
-├── Dark/Light Theme System
+├── Dark/Light Theme System (CSS-variable tokens, persisted toggle,
+│   system-preference default)
 └── Production Build & Docker Compose Containerization
+    (docker-compose.yml: nginx web + api + mongo, optional MinIO profile)
 ```
 
 ---

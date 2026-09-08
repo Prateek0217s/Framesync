@@ -28,7 +28,7 @@ export default function Brand({ size = 'md', showText = true, className = '' }) 
           width="56"
           height="56"
           rx="14"
-          fill="#0B0B12"
+          fill="rgb(var(--ink-900))"
           stroke="url(#fsg)"
           strokeWidth="2.5"
         />
@@ -52,7 +52,7 @@ export default function Brand({ size = 'md', showText = true, className = '' }) 
         />
       </svg>
       {showText && (
-        <span className={`font-extrabold tracking-tight text-white ${text}`}>
+        <span className={`font-extrabold tracking-tight text-slate-100 ${text}`}>
           Frame<span className="text-primary-soft">Sync</span>
         </span>
       )}

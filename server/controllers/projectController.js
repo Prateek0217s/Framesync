@@ -4,7 +4,7 @@ const Comment = require('../models/Comment');
 const ReviewLink = require('../models/ReviewLink');
 const Approval = require('../models/Approval');
 const { emitToProject, emitToDashboard } = require('../socket');
-const { deleteObject } = require('../utils/s3');
+const { deleteObject } = require('../utils/storage');
 
 // GET /api/projects  (admin) — supports ?status= & ?clientId= (PDD §8.1).
 const getAllProjects = async (req, res) => {

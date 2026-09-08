@@ -25,11 +25,11 @@ export default function Modal({ open, onClose, title, children, footer, size = '
         aria-modal="true"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-lg font-semibold text-slate-100">{title}</h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-ink-700 hover:text-white"
+            className="rounded-lg p-1 text-slate-400 hover:bg-ink-700 hover:text-slate-100"
           >
             <X size={18} />
           </button>

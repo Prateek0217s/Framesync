@@ -9,7 +9,7 @@ export default function NotFound() {
       <div className="flex flex-col items-center gap-4 text-center">
         <Brand size="lg" />
         <Frown className="text-slate-600" size={40} />
-        <h1 className="text-2xl font-bold text-white">Page not found</h1>
+        <h1 className="text-2xl font-bold text-slate-100">Page not found</h1>
         <p className="max-w-sm text-sm text-slate-400">
           This link may have expired or the page doesn’t exist.
         </p>

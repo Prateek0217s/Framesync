@@ -1,5 +1,8 @@
 const Comment = require('../models/Comment');
+const Project = require('../models/Project');
 const { emitToProject } = require('../socket');
+const { sendClientCommentEmail } = require('../utils/emailTemplates');
+const { getAdminEmailList } = require('../utils/notifyAdmins');
 
 // GET /api/comments/project/:projectId — timestamped comments + vector data.
 // Access is authorized by middleware (admin or scoped client).
@@ -26,6 +29,30 @@ const createComment = async (req, res) => {
   });
 
   emitToProject(projectId, 'comment:new', comment);
+
+  // Client feedback → email the agency (fire-and-forget, never blocks).
+  if (req.user.role === 'client') {
+    (async () => {
+      try {
+        const [project, to] = await Promise.all([
+          Project.findById(projectId).select('title').lean(),
+          getAdminEmailList(),
+        ]);
+        if (project && to) {
+          await sendClientCommentEmail({
+            to,
+            authorName: req.user.name,
+            projectTitle: project.title,
+            text,
+            timestamp,
+          });
+        }
+      } catch (err) {
+        console.error(`[mailer] comment notification failed: ${err.message}`);
+      }
+    })();
+  }
+
   res.status(201).json(comment);
 };
 

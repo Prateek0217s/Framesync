@@ -5,16 +5,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        // FrameSync dark-first palette.
+        // FrameSync palette is theme-aware: every token resolves to an RGB
+        // CSS variable defined in index.css (`:root` = dark defaults,
+        // `html.light` = light overrides). Alpha modifiers (/50 etc.) keep
+        // working via <alpha-value>.
         ink: {
-          950: '#08080B',
-          900: '#0B0B12',
-          850: '#101019',
-          800: '#15151F',
-          700: '#1D1D2A',
-          600: '#272736',
+          950: 'rgb(var(--ink-950) / <alpha-value>)',
+          900: 'rgb(var(--ink-900) / <alpha-value>)',
+          850: 'rgb(var(--ink-850) / <alpha-value>)',
+          800: 'rgb(var(--ink-800) / <alpha-value>)',
+          700: 'rgb(var(--ink-700) / <alpha-value>)',
+          600: 'rgb(var(--ink-600) / <alpha-value>)',
         },
-        line: '#2A2A3A',
+        line: 'rgb(var(--line) / <alpha-value>)',
+        // Slate text shades flip with the theme (dark: light greys on ink,
+        // light: dark greys on white). Untouched higher shades keep defaults.
+        slate: {
+          100: 'rgb(var(--slate-100) / <alpha-value>)',
+          200: 'rgb(var(--slate-200) / <alpha-value>)',
+          300: 'rgb(var(--slate-300) / <alpha-value>)',
+          400: 'rgb(var(--slate-400) / <alpha-value>)',
+          500: 'rgb(var(--slate-500) / <alpha-value>)',
+          600: 'rgb(var(--slate-600) / <alpha-value>)',
+          700: 'rgb(var(--slate-700) / <alpha-value>)',
+        },
         primary: {
           DEFAULT: '#7C3AED',
           hover: '#6D28D9',

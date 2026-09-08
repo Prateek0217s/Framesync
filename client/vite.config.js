@@ -11,12 +11,12 @@ export default defineConfig({
     proxy: {
       // REST API
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
       },
       // Socket.io (WebSocket upgrade) — keeps everything same-origin in dev.
       '/socket.io': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         ws: true,
         changeOrigin: true,
       },

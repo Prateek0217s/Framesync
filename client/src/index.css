@@ -3,8 +3,52 @@
 @tailwind utilities;
 
 @layer base {
+  /* Theme tokens (PDD Phase 8). Dark is the design default; `html.light`
+     (applied pre-paint by the inline script in index.html) flips to light.
+     Values are space-separated RGB triplets so Tailwind can apply
+     <alpha-value> modifiers. */
   :root {
     color-scheme: dark;
+    --ink-950: 8 8 11;
+    --ink-900: 11 11 18;
+    --ink-850: 16 16 25;
+    --ink-800: 21 21 31;
+    --ink-700: 29 29 42;
+    --ink-600: 39 39 54;
+    --line: 42 42 58;
+    --slate-100: 241 245 249;
+    --slate-200: 226 232 240;
+    --slate-300: 203 213 225;
+    --slate-400: 148 163 184;
+    --slate-500: 100 116 139;
+    --slate-600: 71 85 105;
+    --slate-700: 51 65 85;
+    --glow-a: rgba(124, 58, 237, 0.12);
+    --glow-b: rgba(34, 211, 238, 0.06);
+    --scroll-thumb: #272736;
+    --scroll-thumb-hover: #3a3a4d;
+  }
+
+  html.light {
+    color-scheme: light;
+    --ink-950: 246 246 250;
+    --ink-900: 255 255 255;
+    --ink-850: 255 255 255;
+    --ink-800: 237 237 242;
+    --ink-700: 226 226 234;
+    --ink-600: 212 212 222;
+    --line: 226 226 233;
+    --slate-100: 15 23 42;
+    --slate-200: 30 41 59;
+    --slate-300: 51 65 85;
+    --slate-400: 71 85 105;
+    --slate-500: 100 116 139;
+    --slate-600: 148 163 184;
+    --slate-700: 203 213 225;
+    --glow-a: rgba(124, 58, 237, 0.06);
+    --glow-b: rgba(34, 211, 238, 0.04);
+    --scroll-thumb: #c9c9d4;
+    --scroll-thumb-hover: #b0b0c0;
   }
 
   html,
@@ -17,12 +61,12 @@
     @apply bg-ink-950 text-slate-200 font-sans antialiased;
     background-image: radial-gradient(
         1200px 600px at 80% -10%,
-        rgba(124, 58, 237, 0.12),
+        var(--glow-a),
         transparent 60%
       ),
       radial-gradient(
         900px 500px at -10% 10%,
-        rgba(34, 211, 238, 0.06),
+        var(--glow-b),
         transparent 55%
       );
     background-attachment: fixed;
@@ -32,23 +76,23 @@
     background: rgba(124, 58, 237, 0.35);
   }
 
-  /* Slim scrollbars that match the dark shell. */
+  /* Slim scrollbars that match the active shell. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #2a2a3a transparent;
+    scrollbar-color: var(--scroll-thumb) transparent;
   }
   *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   *::-webkit-scrollbar-thumb {
-    background: #272736;
+    background: var(--scroll-thumb);
     border-radius: 9999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: #3a3a4d;
+    background: var(--scroll-thumb-hover);
     background-clip: content-box;
   }
 }
@@ -56,6 +100,12 @@
 @layer components {
   .fs-card {
     @apply rounded-xl border border-line bg-ink-850/80 backdrop-blur-sm shadow-card;
+  }
+  html.light .fs-card {
+    /* Plain CSS (not @apply): softer elevation on white surfaces. */
+    box-shadow:
+      0 1px 2px rgba(15, 15, 25, 0.05),
+      0 8px 24px -16px rgba(15, 15, 25, 0.12);
   }
 
   .fs-input {
@@ -68,19 +118,37 @@
     @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
   }
 
+  /* Buttons are self-contained (no @apply of custom classes) — every variant
+     repeats the base utilities so Tailwind never has to resolve .fs-btn. */
   .fs-btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none;
   }
   .fs-btn-primary {
-    @apply fs-btn bg-primary text-white hover:bg-primary-hover
-      shadow-[0_6px_20px_-8px_rgba(124,58,237,0.8)];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+      transition disabled:cursor-not-allowed disabled:opacity-50 select-none
+      bg-primary text-white hover:bg-primary-hover;
+    /* Plain CSS (not @apply): arbitrary values with commas break @apply. */
+    box-shadow: 0 6px 20px -8px rgba(124, 58, 237, 0.8);
   }
   .fs-btn-ghost {
-    @apply fs-btn border border-line bg-ink-800 text-slate-200 hover:bg-ink-700;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+      transition disabled:cursor-not-allowed disabled:opacity-50 select-none
+      border border-line bg-ink-800 text-slate-200 hover:bg-ink-700;
   }
   .fs-btn-danger {
-    @apply fs-btn border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+      transition disabled:cursor-not-allowed disabled:opacity-50 select-none
+      border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20;
+  }
+  html.light .fs-btn-danger {
+    /* Plain CSS (not @apply): red-300 on white is illegible — standard red. */
+    border-color: rgba(220, 38, 38, 0.3);
+    background-color: rgb(254, 242, 242);
+    color: rgb(185, 28, 28);
+  }
+  html.light .fs-btn-danger:hover {
+    background-color: rgb(254, 226, 226);
   }
 
   /* Kanban stage badges. */

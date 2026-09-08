@@ -37,6 +37,12 @@ app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/uploads', require('./routes/uploadRoutes'));
 app.use('/api/approvals', require('./routes/approvalRoutes'));
 
+// Local-disk media endpoints (STORAGE_MODE=local). JWT-less by design —
+// these stand in for S3 itself and authenticate via the HMAC signature in
+// the query string (see routes/localMediaRoutes.js). Safe to mount in S3
+// mode too: no valid signature can be produced without JWT_SECRET.
+app.use('/api/uploads/local', require('./routes/localMediaRoutes'));
+
 // 404
 app.use((req, res) => res.status(404).json({ message: 'Not found' }));
 
@@ -64,7 +70,8 @@ process.on('unhandledRejection', (err) => {
 const server = http.createServer(app);
 initSocket(server);
 
-const PORT = process.env.PORT || 5000;
+// Default matches the committed client dev proxy (client/vite.config.js).
+const PORT = process.env.PORT || 5001;
 server.listen(PORT, () =>
   console.log(`FrameSync API + Socket.io running on port ${PORT}`)
 );

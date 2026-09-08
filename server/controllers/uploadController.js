@@ -1,8 +1,13 @@
 const Project = require('../models/Project');
-const { getPresignedUploadUrl, getPresignedDownloadUrl, buildKey } = require('../utils/s3');
+const {
+  getPresignedUploadUrl,
+  getPresignedDownloadUrl,
+  buildKey,
+} = require('../utils/storage');
 
 // Presigned-URL upload/download engine (PDD §5.2 / §10). The API never touches
-// the media bytes — the browser talks directly to S3.
+// the media bytes in production (S3 mode); in local mode it streams them —
+// the backend is chosen by STORAGE_MODE via utils/storage.js.
 
 // POST /api/uploads/presigned-upload  (admin) — proxy media PUT URL (15m).
 const presignProxyUpload = async (req, res) => {

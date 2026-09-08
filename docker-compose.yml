@@ -1,0 +1,66 @@
+# FrameSync — full stack (PDD §12 Phase 8: Production Build & Docker
+# Compose Containerization).
+#
+#   docker compose up --build
+#     web   → http://localhost:8080   (nginx: static client + same-origin proxy)
+#     api   → internal only, :5001    (Express + Socket.io)
+#     mongo → internal only           (with a named volume)
+#
+# The API reads ./server/.env (copy server/.env.example first). Values set
+# below under `environment:` override the file, so Mongo always points at the
+# compose service and magic links always carry the public web origin.
+#
+# Local S3-compatible storage: `docker compose --profile storage up` adds
+# MinIO on http://localhost:9000 (console :9001) — set S3_ENDPOINT /
+# S3_FORCE_PATH_STYLE per server/.env.example.
+
+services:
+  web:
+    build: ./client
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+
+  api:
+    build: ./server
+    restart: unless-stopped
+    env_file:
+      - path: ./server/.env
+        required: false
+    environment:
+      # Compose-internal Mongo beats any Atlas string in .env.
+      MONGO_URI: mongodb://mongo:27017/framesync
+      # Public origin — used for magic-link URLs (override for real domains).
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:8080}
+      # One trusted proxy hop (this nginx) so the approval audit records the
+      # real client IP from X-Forwarded-For (PDD §5.5.2).
+      TRUST_PROXY: 1
+    depends_on:
+      - mongo
+    expose:
+      - '5001'
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+
+  minio:
+    image: minio/minio:latest
+    profiles: ['storage']
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: framesync
+      MINIO_ROOT_PASSWORD: framesync-minio
+    volumes:
+      - minio-data:/data
+
+volumes:
+  mongo-data:
+  minio-data:

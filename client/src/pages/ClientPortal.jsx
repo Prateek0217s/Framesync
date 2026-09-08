@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Brand from '../components/Brand';
+import ThemeToggle from '../components/ThemeToggle';
 import VideoReviewer from '../components/VideoReviewer';
 import ApprovalModal from '../components/ApprovalModal';
 import useProjectRoom from '../hooks/useProjectRoom';
@@ -132,7 +133,7 @@ export default function ClientPortal() {
           <div className="grid h-12 w-12 place-items-center rounded-full bg-red-500/10 text-red-400">
             <AlertTriangle size={22} />
           </div>
-          <h1 className="text-lg font-semibold text-white">Link unavailable</h1>
+          <h1 className="text-lg font-semibold text-slate-100">Link unavailable</h1>
           <p className="text-sm text-slate-400">{errorMsg}</p>
           <p className="text-xs text-slate-600">
             Please ask the studio to send you a fresh review link.
@@ -164,6 +165,7 @@ export default function ClientPortal() {
             {me?.name && (
               <span className="hidden text-sm text-slate-400 sm:inline">{me.name}</span>
             )}
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -172,7 +174,7 @@ export default function ClientPortal() {
         {/* Title + delivery action */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div className="min-w-0">
-            <h1 className="truncate text-2xl font-bold text-white">{project.title}</h1>
+            <h1 className="truncate text-2xl font-bold text-slate-100">{project.title}</h1>
             {project.clientId?.clientName && (
               <p className="text-sm text-slate-400">{project.clientId.clientName}</p>
             )}

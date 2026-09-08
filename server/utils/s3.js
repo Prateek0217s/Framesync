@@ -5,6 +5,7 @@ const {
   DeleteObjectCommand,
 } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { buildKey } = require('./storageKey');
 
 // Presigned-URL S3 engine (PDD §5.2.1 / §10). Buckets stay fully private;
 // all access is via short-lived presigned URLs, so the API server never
@@ -42,12 +43,6 @@ const getPresignedDownloadUrl = (key, expiresIn = 3600) =>
 
 const deleteObject = (key) =>
   s3Client.send(new DeleteObjectCommand({ Bucket: BUCKET(), Key: key }));
-
-// Build a collision-resistant, path-namespaced object key.
-const buildKey = (folder, projectId, originalName) => {
-  const safe = String(originalName || 'file').replace(/[^\w.\-]+/g, '-');
-  return `${folder}/${projectId}/${Date.now()}-${safe}`;
-};
 
 module.exports = {
   s3Client,

@@ -4,3 +4,5 @@ node_modules/
 .DS_Store
 dist/
 build/
+# Local-disk media storage (STORAGE_MODE=local dev mode).
+server/storage/

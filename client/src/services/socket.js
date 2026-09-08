@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-// Same-origin connection; Vite proxies /socket.io -> :5000 (see vite.config.js),
+// Same-origin connection; Vite proxies /socket.io -> :5001 (see vite.config.js),
 // so there is no CORS surface in dev and no env var to manage.
 const socket = io({
   autoConnect: false,

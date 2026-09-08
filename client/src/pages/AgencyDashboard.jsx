@@ -87,7 +87,7 @@ export default function AgencyDashboard() {
               <LayoutGrid size={18} />
               <span className="text-sm">Workspace</span>
             </div>
-            <h1 className="mt-1 text-2xl font-bold text-white">Review Board</h1>
+            <h1 className="mt-1 text-2xl font-bold text-slate-100">Review Board</h1>
           </div>
           <div className="flex gap-2">
             <button onClick={() => setShowClient(true)} className="fs-btn-ghost">
@@ -107,7 +107,7 @@ export default function AgencyDashboard() {
                 <span className={`h-2.5 w-2.5 rounded-full ${STAGE_META[s].dot}`} />
                 <span className="text-sm text-slate-300">{STAGE_META[s].label}</span>
               </div>
-              <span className="text-lg font-bold text-white">{counts[s]}</span>
+              <span className="text-lg font-bold text-slate-100">{counts[s]}</span>
             </div>
           ))}
         </div>
@@ -119,7 +119,7 @@ export default function AgencyDashboard() {
         ) : projects.length === 0 ? (
           <div className="fs-card grid place-items-center gap-3 py-20 text-center">
             <LayoutGrid className="text-slate-700" size={36} />
-            <h3 className="text-lg font-semibold text-white">No projects yet</h3>
+            <h3 className="text-lg font-semibold text-slate-100">No projects yet</h3>
             <p className="max-w-sm text-sm text-slate-400">
               Create your first project to start the review pipeline.
             </p>

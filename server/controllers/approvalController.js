@@ -1,5 +1,8 @@
 const Approval = require('../models/Approval');
+const Project = require('../models/Project');
 const { emitToProject, emitToDashboard } = require('../socket');
+const { sendApprovalEmail } = require('../utils/emailTemplates');
+const { getAdminEmailList } = require('../utils/notifyAdmins');
 
 // POST /api/approvals/:projectId/approve — immutable legal sign-off (PDD §5.5.2).
 // Transitions the project to 'Approved' and unlocks the master asset slot.
@@ -37,6 +40,27 @@ const approveProject = async (req, res) => {
   emitToProject(project._id, 'project:statusChanged', statusPayload);
   emitToDashboard('project:approved', approvedPayload);
   emitToDashboard('project:statusChanged', statusPayload);
+
+  // Email the agency that the Level Lock is released (fire-and-forget).
+  (async () => {
+    try {
+      const [to, client] = await Promise.all([
+        getAdminEmailList(),
+        Project.findById(project._id)
+          .populate('clientId', 'clientName')
+          .select('clientId'),
+      ]);
+      if (to && client?.clientId) {
+        await sendApprovalEmail({
+          to,
+          clientName: client.clientId.clientName,
+          projectTitle: project.title,
+        });
+      }
+    } catch (err) {
+      console.error(`[mailer] approval notification failed: ${err.message}`);
+    }
+  })();
 
   res.status(201).json({ approval, project });
 };

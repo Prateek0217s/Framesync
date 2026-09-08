@@ -178,7 +178,7 @@ export default function ProjectDetail() {
             >
               <ArrowLeft size={15} /> Board
             </Link>
-            <h1 className="truncate text-2xl font-bold text-white">{project.title}</h1>
+            <h1 className="truncate text-2xl font-bold text-slate-100">{project.title}</h1>
             {clientName && <p className="text-sm text-slate-400">{clientName}</p>}
           </div>
 
@@ -220,13 +220,13 @@ export default function ProjectDetail() {
         {/* Media & delivery */}
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <div className="fs-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-white">Proxy media</h3>
+            <h3 className="mb-3 text-sm font-semibold text-slate-100">Proxy media</h3>
             <MediaUpload project={project} variant="proxy" onDone={onProxyUploaded} />
           </div>
 
           <div className="fs-card p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Master delivery</h3>
+              <h3 className="text-sm font-semibold text-slate-100">Master delivery</h3>
               {isApproved && <ShieldCheck size={16} className="text-emerald-400" />}
             </div>
             <MediaUpload
@@ -243,7 +243,7 @@ export default function ProjectDetail() {
           </div>
 
           <div className="fs-card p-4">
-            <h3 className="mb-3 text-sm font-semibold text-white">Approval audit</h3>
+            <h3 className="mb-3 text-sm font-semibold text-slate-100">Approval audit</h3>
             {approval ? (
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2 text-emerald-300">

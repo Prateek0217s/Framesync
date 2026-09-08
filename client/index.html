@@ -5,6 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/framesync.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FrameSync — Video Review & Conditional Delivery</title>
+    <script>
+      // Apply the persisted (or system) theme before first paint so the app
+      // never flashes the wrong shell (PDD Phase 8 theme system).
+      (function () {
+        try {
+          var t = localStorage.getItem('fs-theme');
+          if (
+            t === 'light' ||
+            (!t && window.matchMedia('(prefers-color-scheme: light)').matches)
+          ) {
+            document.documentElement.classList.add('light');
+          }
+        } catch (e) {
+          /* private mode etc. — fall back to the dark default */
+        }
+      })();
+    </script>
     <meta
       name="description"
       content="Enterprise video collaboration, vector frame annotation, and conditional master delivery for post-production studios."

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import Brand from './Brand';
+import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
 // Agency-side top navigation.
@@ -29,6 +30,7 @@ export default function TopBar() {
               {user?.email} · Agency
             </p>
           </div>
+          <ThemeToggle />
           <button type="button" onClick={doLogout} className="fs-btn-ghost px-3 py-2 text-sm">
             <LogOut size={15} /> Sign out
           </button>
