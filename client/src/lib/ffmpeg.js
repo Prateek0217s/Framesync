@@ -98,8 +98,12 @@ export async function compressVideo(file, { onProgress, onLog, onPhase } = {}) {
   const outName = 'output.mp4';
 
   // Monotonic progress: the 0.12 `progress` event stays silent on some inputs,
-  // so also parse ffmpeg's stderr "time=HH:MM:SS" stamps against the probed
-  // duration. A frozen 0% bar is indistinguishable from a hang.
+  // so also parse ffmpeg's stderr "time=HH:MM:SS" stamps. The duration used
+  // for the ratio comes from the browser probe — EXCEPT when that failed
+  // (browser-undecodable codecs like ProRes make getVideoDuration return 0),
+  // in which case we take ffmpeg's own "Duration: HH:MM:SS" header line
+  // instead. A frozen 0% bar is indistinguishable from a hang.
+  let duration = durationSeconds;
   let lastPct = 0;
   const report = (pct) => {
     lastPct = Math.max(lastPct, Math.min(99, Math.max(0, Math.round(pct))));
@@ -108,10 +112,14 @@ export async function compressVideo(file, { onProgress, onLog, onPhase } = {}) {
   const progressHandler = ({ progress }) => report(progress * 100);
   const logHandler = ({ message }) => {
     onLog?.(message);
+    if (!duration) {
+      const d = /Duration: (\d+):(\d+):(\d+(?:\.\d+)?)/.exec(message || '');
+      if (d) duration = +d[1] * 3600 + +d[2] * 60 + +d[3];
+    }
     const m = /time=(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(message || '');
-    if (m && durationSeconds > 0) {
+    if (m && duration > 0) {
       const secs = +m[1] * 3600 + +m[2] * 60 + +m[3];
-      report((secs / durationSeconds) * 100);
+      report((secs / duration) * 100);
     }
   };
   ff.on('progress', progressHandler);

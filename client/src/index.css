@@ -3,19 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  /* Theme tokens (PDD Phase 8). Dark is the design default; `html.light`
-     (applied pre-paint by the inline script in index.html) flips to light.
+  /* Theme tokens — Neobrutalism (skill: neobrutalism-design, Coral & Cream,
+     standard weight). Dark mode is the skill's "Dark Brut" variant so the
+     existing theme toggle keeps working: cream default, #111/#fff hard lines.
      Values are space-separated RGB triplets so Tailwind can apply
-     <alpha-value> modifiers. */
+     <alpha-value> modifiers. `--nb-line` drives both borders and the
+     zero-blur offset shadows (never break: shadow color == border color). */
   :root {
     color-scheme: dark;
-    --ink-950: 8 8 11;
-    --ink-900: 11 11 18;
-    --ink-850: 16 16 25;
-    --ink-800: 21 21 31;
-    --ink-700: 29 29 42;
-    --ink-600: 39 39 54;
-    --line: 42 42 58;
+    --ink-950: 17 17 17;
+    --ink-900: 26 26 26;
+    --ink-850: 31 31 31;
+    --ink-800: 38 38 38;
+    --ink-700: 47 47 47;
+    --ink-600: 60 60 60;
+    --line: 255 255 255;
+    --nb-line: 255 255 255;
     --slate-100: 241 245 249;
     --slate-200: 226 232 240;
     --slate-300: 203 213 225;
@@ -23,21 +26,23 @@
     --slate-500: 100 116 139;
     --slate-600: 71 85 105;
     --slate-700: 51 65 85;
-    --glow-a: rgba(124, 58, 237, 0.12);
-    --glow-b: rgba(34, 211, 238, 0.06);
-    --scroll-thumb: #272736;
-    --scroll-thumb-hover: #3a3a4d;
+    --scroll-thumb: #3a3a3a;
+    --scroll-thumb-hover: #555555;
   }
 
+  /* Coral & Cream — the default FrameSync look. Surfaces are warm ivory
+     (never pure #FFF — white on cream reads cold and clinical); the page
+     sits a step deeper in the cream family so cards still separate. */
   html.light {
     color-scheme: light;
-    --ink-950: 246 246 250;
-    --ink-900: 255 255 255;
-    --ink-850: 255 255 255;
-    --ink-800: 237 237 242;
-    --ink-700: 226 226 234;
-    --ink-600: 212 212 222;
-    --line: 226 226 233;
+    --ink-950: 240 235 210;
+    --ink-900: 255 250 226;
+    --ink-850: 255 251 235;
+    --ink-800: 246 240 214;
+    --ink-700: 237 230 200;
+    --ink-600: 227 219 183;
+    --line: 17 17 17;
+    --nb-line: 17 17 17;
     --slate-100: 15 23 42;
     --slate-200: 30 41 59;
     --slate-300: 51 65 85;
@@ -45,10 +50,8 @@
     --slate-500: 100 116 139;
     --slate-600: 148 163 184;
     --slate-700: 203 213 225;
-    --glow-a: rgba(124, 58, 237, 0.06);
-    --glow-b: rgba(34, 211, 238, 0.04);
-    --scroll-thumb: #c9c9d4;
-    --scroll-thumb-hover: #b0b0c0;
+    --scroll-thumb: #cfc9a3;
+    --scroll-thumb-hover: #b5af87;
   }
 
   html,
@@ -59,21 +62,10 @@
 
   body {
     @apply bg-ink-950 text-slate-200 font-sans antialiased;
-    background-image: radial-gradient(
-        1200px 600px at 80% -10%,
-        var(--glow-a),
-        transparent 60%
-      ),
-      radial-gradient(
-        900px 500px at -10% 10%,
-        var(--glow-b),
-        transparent 55%
-      );
-    background-attachment: fixed;
   }
 
   ::selection {
-    background: rgba(124, 58, 237, 0.35);
+    background: rgba(232, 99, 90, 0.35);
   }
 
   /* Slim scrollbars that match the active shell. */
@@ -98,61 +90,100 @@
 }
 
 @layer components {
+  /* Neobrutalist card — hard 2px line, zero-blur offset shadow. Shadow is
+     selective per the skill: dense surfaces (kanban cards, comment rows)
+     can drop it with .fs-card-flat. */
   .fs-card {
-    @apply rounded-xl border border-line bg-ink-850/80 backdrop-blur-sm shadow-card;
+    @apply rounded-xl border border-line bg-ink-850;
+    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
   }
-  html.light .fs-card {
-    /* Plain CSS (not @apply): softer elevation on white surfaces. */
-    box-shadow:
-      0 1px 2px rgba(15, 15, 25, 0.05),
-      0 8px 24px -16px rgba(15, 15, 25, 0.12);
+  .fs-card-flat {
+    @apply rounded-xl border border-line bg-ink-850;
+    box-shadow: none;
   }
 
   .fs-input {
     @apply w-full rounded-lg border border-line bg-ink-900 px-3 py-2.5 text-sm text-slate-100
-      placeholder:text-slate-500 outline-none transition
-      focus:border-primary focus:ring-2 focus:ring-primary/30;
+      placeholder:text-slate-500 outline-none transition;
+    box-shadow: 3px 3px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  /* Focus: coral hard shadow + slight lift, the skill's signature input move. */
+  .fs-input:focus {
+    border-color: #e8635a;
+    box-shadow: 4px 4px 0 0 #e8635a;
+    transform: translate(-1px, -1px);
   }
 
   .fs-label {
     @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
   }
 
+  /* Silver Star logo asset is dark-on-transparent. It reads perfectly on
+     cream, but on Dark Brut the near-black star and lettering would vanish —
+     so invert there (dark star → ivory, white orbit ring → ink). */
+  html:not(.light) .brand-logo {
+    filter: invert(1);
+  }
+
   /* Buttons are self-contained (no @apply of custom classes) — every variant
-     repeats the base utilities so Tailwind never has to resolve .fs-btn. */
+     repeats the base utilities so Tailwind never has to resolve .fs-btn.
+     Neobrutalist press-down: hover slides into the shadow, active removes it. */
   .fs-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none;
   }
   .fs-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      bg-primary text-white hover:bg-primary-hover;
-    /* Plain CSS (not @apply): arbitrary values with commas break @apply. */
-    box-shadow: 0 6px 20px -8px rgba(124, 58, 237, 0.8);
+      border border-line bg-primary text-white;
+    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-primary:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-primary:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
   }
   .fs-btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      border border-line bg-ink-800 text-slate-200 hover:bg-ink-700;
+      border border-line bg-ink-800 text-slate-200;
+    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-ghost:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-ghost:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
   }
   .fs-btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      border border-red-500/30 bg-red-500/10 text-red-300 hover:bg-red-500/20;
+      border border-line bg-ink-800 text-slate-200;
+    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-danger:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+  }
+  .fs-btn-danger:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: none;
   }
   html.light .fs-btn-danger {
-    /* Plain CSS (not @apply): red-300 on white is illegible — standard red. */
-    border-color: rgba(220, 38, 38, 0.3);
-    background-color: rgb(254, 242, 242);
-    color: rgb(185, 28, 28);
+    background-color: #ffe5e5;
+    color: #b91c1c;
   }
-  html.light .fs-btn-danger:hover {
-    background-color: rgb(254, 226, 226);
+  html.light .fs-btn-danger:hover:not(:disabled) {
+    background-color: #ffd6d6;
   }
 
   /* Kanban stage badges. */
   .fs-badge {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold;
   }
 }

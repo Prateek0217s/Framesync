@@ -2,23 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/framesync.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FrameSync — Video Review & Conditional Delivery</title>
     <script>
       // Apply the persisted (or system) theme before first paint so the app
-      // never flashes the wrong shell (PDD Phase 8 theme system).
+      // never flashes the wrong shell. Default is the Coral & Cream
+      // neobrutalist theme (`html.light`); saved 'dark' gets Dark Brut.
       (function () {
         try {
           var t = localStorage.getItem('fs-theme');
           if (
-            t === 'light' ||
-            (!t && window.matchMedia('(prefers-color-scheme: light)').matches)
+            t === 'dark' ||
+            (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)
           ) {
-            document.documentElement.classList.add('light');
+            return; // Dark Brut = unclassed :root
           }
+          document.documentElement.classList.add('light');
         } catch (e) {
-          /* private mode etc. — fall back to the dark default */
+          /* private mode etc. — fall back to the cream default */
+          document.documentElement.classList.add('light');
         }
       })();
     </script>
@@ -29,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap"
       rel="stylesheet"
     />
   </head>

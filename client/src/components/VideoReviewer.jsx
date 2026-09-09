@@ -190,7 +190,7 @@ export default function VideoReviewer({
               onClick={togglePlay}
               className="pointer-events-none absolute inset-0 grid place-items-center"
             >
-              <span className="pointer-events-auto grid h-16 w-16 place-items-center rounded-full bg-primary/90 text-white shadow-glow transition hover:scale-105">
+              <span className="pointer-events-auto grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-primary text-white shadow-glow transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-glow-hover active:translate-x-[4px] active:translate-y-[4px] active:shadow-none">
                 <Play size={28} className="ml-1" />
               </span>
             </button>

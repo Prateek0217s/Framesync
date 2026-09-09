@@ -16,7 +16,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-ink-950/80 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-line bg-ink-950">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-3">
         <Link to="/">
           <Brand />

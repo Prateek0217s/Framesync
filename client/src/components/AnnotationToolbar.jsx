@@ -16,7 +16,7 @@ export default function AnnotationToolbar({
 }) {
   return (
     <div
-      className={`flex flex-wrap items-center gap-3 rounded-xl border border-line bg-ink-850/90 px-3 py-2 backdrop-blur ${
+      className={`flex flex-wrap items-center gap-3 rounded-xl border border-line bg-ink-850 px-3 py-2 ${
         disabled ? 'pointer-events-none opacity-50' : ''
       }`}
     >

@@ -24,7 +24,7 @@ export default function KanbanColumn({ status, projects, onOpen }) {
         className={`flex min-h-[140px] flex-1 flex-col gap-2 rounded-xl border p-2 transition ${
           isOver
             ? 'border-primary bg-primary/5'
-            : 'border-line/60 bg-ink-900/40'
+            : 'border-line bg-ink-900/40'
         }`}
       >
         {projects.map((p) => (
