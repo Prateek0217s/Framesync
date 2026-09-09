@@ -181,14 +181,16 @@ export default function VideoReviewer({
             </div>
           )}
 
-          {/* Center play affordance when paused with no drawing yet */}
+          {/* Center play affordance when paused with no drawing yet.
+              Only the circle itself is clickable — the wrapper passes
+              clicks through to the sketch canvas underneath. */}
           {proxyUrl && isPaused && strokeCount === 0 && !selectedId && (
             <button
               type="button"
               onClick={togglePlay}
-              className="pointer-events-auto absolute inset-0 grid place-items-center"
+              className="pointer-events-none absolute inset-0 grid place-items-center"
             >
-              <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/90 text-white shadow-glow transition hover:scale-105">
+              <span className="pointer-events-auto grid h-16 w-16 place-items-center rounded-full bg-primary/90 text-white shadow-glow transition hover:scale-105">
                 <Play size={28} className="ml-1" />
               </span>
             </button>

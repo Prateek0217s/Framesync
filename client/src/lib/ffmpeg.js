@@ -97,14 +97,31 @@ export async function compressVideo(file, { onProgress, onLog, onPhase } = {}) {
   const inName = `input.${extensionOf(file.name)}`;
   const outName = 'output.mp4';
 
-  const progressHandler = ({ progress }) => {
-    if (onProgress) onProgress(Math.min(99, Math.max(0, Math.round(progress * 100))));
+  // Monotonic progress: the 0.12 `progress` event stays silent on some inputs,
+  // so also parse ffmpeg's stderr "time=HH:MM:SS" stamps against the probed
+  // duration. A frozen 0% bar is indistinguishable from a hang.
+  let lastPct = 0;
+  const report = (pct) => {
+    lastPct = Math.max(lastPct, Math.min(99, Math.max(0, Math.round(pct))));
+    onProgress?.(lastPct);
+  };
+  const progressHandler = ({ progress }) => report(progress * 100);
+  const logHandler = ({ message }) => {
+    onLog?.(message);
+    const m = /time=(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(message || '');
+    if (m && durationSeconds > 0) {
+      const secs = +m[1] * 3600 + +m[2] * 60 + +m[3];
+      report((secs / durationSeconds) * 100);
+    }
   };
   ff.on('progress', progressHandler);
+  ff.on('log', logHandler);
 
   try {
-    onPhase?.('transcoding');
+    onPhase?.('writing');
     await ff.writeFile(inName, await fetchFile(file));
+
+    onPhase?.('transcoding');
 
     // Exact pipeline from PDD §5.2.3.
     await ff.exec([
@@ -129,5 +146,6 @@ export async function compressVideo(file, { onProgress, onLog, onPhase } = {}) {
     return { blob, didCompress: true, targetBitrateKbps, durationSeconds };
   } finally {
     ff.off('progress', progressHandler);
+    ff.off('log', logHandler);
   }
 }

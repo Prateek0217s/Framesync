@@ -1,4 +1,5 @@
 const { Server } = require('socket.io');
+const { isAllowedOrigin } = require('../utils/originAllowlist');
 
 // Socket.io real-time gateway (PDD §5.6 / §8.2).
 // Rooms are keyed `project:${projectId}`. Controllers broadcast domain events
@@ -26,7 +27,7 @@ const userHasOtherSocket = (room, userId, exceptId) => {
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
       credentials: true,
     },
   });

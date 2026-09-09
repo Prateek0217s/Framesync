@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const securityHeaders = require('./middleware/securityHeaders');
+const { isAllowedOrigin } = require('./utils/originAllowlist');
 const { initSocket } = require('./socket');
 
 dotenv.config();
@@ -20,7 +21,9 @@ app.use(securityHeaders);
 app.use(express.json({ limit: '2mb' }));
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    // Accept localhost + private-LAN origins (see utils/originAllowlist) so
+    // the dashboard works from any device on the same network as the dev box.
+    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
     credentials: true,
   })
 );

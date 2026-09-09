@@ -5,6 +5,7 @@ const ReviewLink = require('../models/ReviewLink');
 const generateToken = require('../utils/tokenGenerator');
 const { signToken } = require('../utils/jwt');
 const { sendReviewLinkEmail } = require('../utils/emailTemplates');
+const { resolveShareableOrigin } = require('../utils/originAllowlist');
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -92,8 +93,9 @@ const generateMagicLink = async (req, res) => {
     createdBy: req.user._id,
   });
 
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-  const reviewUrl = `${clientUrl}/portal/${link.token}`;
+  // Links must open on any device, not just the machine that minted them —
+  // a literal localhost here is why magic links died on other laptops.
+  const reviewUrl = `${resolveShareableOrigin(req)}/portal/${link.token}`;
 
   // Email the reviewer their link (fire-and-forget: a mail outage must never
   // fail the API response — sendMail swallows and logs errors).

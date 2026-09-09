@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UploadCloud, Loader2, CheckCircle2, Lock, Film, Cpu } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { uploadsApi, projectsApi, putToS3 } from '../services/api';
@@ -8,7 +8,8 @@ import { COMPRESSION_THRESHOLD_BYTES } from '../lib/constants';
 
 const PHASE_LABEL = {
   probing: 'Probing video metadata…',
-  'loading-core': 'Loading WASM core…',
+  'loading-core': 'Loading WASM core… (~30 MB, first time only)',
+  writing: 'Loading video into memory…',
   transcoding: 'Transcoding in browser…',
 };
 
@@ -25,15 +26,27 @@ export default function MediaUpload({ project, variant, disabled, onDone }) {
   const [compressPct, setCompressPct] = useState(0);
   const [uploadPct, setUploadPct] = useState(0);
   const [info, setInfo] = useState(null);
+  const [logTail, setLogTail] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
 
   const busy = phase === 'compressing' || phase === 'uploading';
   const isMaster = variant === 'master';
+
+  // Elapsed-seconds counter — proof the process is alive even when the
+  // percentage can't be determined yet (e.g. before duration is known).
+  useEffect(() => {
+    if (!busy) return;
+    setElapsed(0);
+    const timer = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(timer);
+  }, [busy, phase]);
 
   const reset = () => {
     setPhase('idle');
     setFfPhase(null);
     setCompressPct(0);
     setUploadPct(0);
+    setLogTail(null);
   };
 
   const handleFile = async (file) => {
@@ -60,6 +73,11 @@ export default function MediaUpload({ project, variant, disabled, onDone }) {
         const result = await compressVideo(file, {
           onPhase: setFfPhase,
           onProgress: setCompressPct,
+          onLog: (msg) => {
+            // Keep only ffmpeg's frame/time status lines — the definitive
+            // "it's alive" signal, shown under the progress bar.
+            if (msg.includes('frame=')) setLogTail(msg);
+          },
         });
         blob = result.blob;
         if (result.didCompress) {
@@ -156,20 +174,35 @@ export default function MediaUpload({ project, variant, disabled, onDone }) {
         <div className="rounded-xl border border-line bg-ink-900/60 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm text-slate-200">
             {phase === 'compressing' ? (
-              <Cpu size={16} className="text-accent" />
+              <Cpu size={16} className="animate-pulse text-accent" />
             ) : (
               <Loader2 size={16} className="animate-spin text-primary-soft" />
             )}
-            <span>
+            <span className="flex-1 truncate">
               {phase === 'compressing'
                 ? PHASE_LABEL[ffPhase] || 'Preparing…'
                 : 'Uploading to secure storage…'}
             </span>
+            <span className="shrink-0 tabular-nums text-xs text-slate-400">
+              {phase === 'compressing' ? `${compressPct}%` : `${uploadPct}%`}
+              <span className="ml-2 text-slate-500">{elapsed}s</span>
+            </span>
           </div>
           {info && <p className="mb-2 text-xs text-slate-500">{info}</p>}
+          {phase === 'compressing' && logTail && (
+            <p
+              className="mb-2 truncate font-mono text-[10px] text-slate-600"
+              title={logTail}
+            >
+              {logTail}
+            </p>
+          )}
           <Progress
             value={phase === 'compressing' ? compressPct : uploadPct}
             tone={phase === 'compressing' ? 'accent' : 'primary'}
+            indeterminate={
+              phase === 'compressing' && compressPct === 0 && elapsed > 2
+            }
           />
         </div>
       )}
@@ -177,15 +210,24 @@ export default function MediaUpload({ project, variant, disabled, onDone }) {
   );
 }
 
-function Progress({ value, tone }) {
+function Progress({ value, tone, indeterminate }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-ink-700">
-      <div
-        className={`h-full rounded-full transition-all ${
-          tone === 'accent' ? 'bg-accent' : 'bg-primary'
-        }`}
-        style={{ width: `${value}%` }}
-      />
+      {indeterminate ? (
+        // Percentage unknown yet — a moving bar proves work is happening.
+        <div
+          className={`h-full w-full animate-pulse rounded-full ${
+            tone === 'accent' ? 'bg-accent' : 'bg-primary'
+          }`}
+        />
+      ) : (
+        <div
+          className={`h-full rounded-full transition-all ${
+            tone === 'accent' ? 'bg-accent' : 'bg-primary'
+          }`}
+          style={{ width: `${value}%` }}
+        />
+      )}
     </div>
   );
 }
