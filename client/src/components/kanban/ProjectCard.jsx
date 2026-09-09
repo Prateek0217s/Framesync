@@ -24,7 +24,7 @@ export default function ProjectCard({ project, onOpen, overlay = false }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`group fs-card p-3 ${overlay ? 'rotate-2 shadow-glow' : ''}`}
+      className={`group fs-card p-3 ${overlay ? 'shadow-glow' : ''}`}
     >
       <div className="flex items-start gap-2">
         <button

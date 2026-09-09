@@ -190,7 +190,7 @@ export default function VideoReviewer({
               onClick={togglePlay}
               className="pointer-events-none absolute inset-0 grid place-items-center"
             >
-              <span className="pointer-events-auto grid h-16 w-16 place-items-center rounded-full border border-white/20 bg-primary text-white shadow-glow transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-glow-hover active:translate-x-[4px] active:translate-y-[4px] active:shadow-none">
+              <span className="pointer-events-auto grid h-16 w-16 place-items-center rounded-full border border-white/25 bg-primary text-[#062430] shadow-glow transition hover:scale-105 hover:shadow-glow-hover active:scale-95">
                 <Play size={28} className="ml-1" />
               </span>
             </button>
@@ -204,7 +204,7 @@ export default function VideoReviewer({
               <button
                 type="button"
                 onClick={togglePlay}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-white hover:bg-primary-hover"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-[#062430] transition hover:bg-primary-hover hover:shadow-glow active:scale-95"
               >
                 {isPaused ? <Play size={18} className="ml-0.5" /> : <Pause size={18} />}
               </button>

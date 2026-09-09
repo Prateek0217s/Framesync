@@ -36,6 +36,8 @@ export default function AdminLogin() {
   };
 
   return (
+    // The global Light Ripple backdrop (App.jsx) shows through here in the
+    // dark theme; the cream theme paints over it.
     <div className="grid min-h-screen place-items-center p-6">
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
@@ -46,14 +48,14 @@ export default function AdminLogin() {
         </div>
 
         <div className="fs-card p-6">
-          <div className="mb-5 flex rounded-lg border border-line bg-ink-900 p-1">
+          <div className="mb-5 flex rounded-lg border border-line/10 bg-ink-900/60 p-1">
             {['login', 'register'].map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
                 className={`flex-1 rounded-md py-2 text-sm font-medium capitalize transition ${
-                  mode === m ? 'bg-primary text-white' : 'text-slate-400 hover:text-slate-200'
+                  mode === m ? 'bg-primary text-[#062430]' : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {m === 'login' ? 'Sign in' : 'Register'}

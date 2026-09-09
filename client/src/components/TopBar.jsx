@@ -15,8 +15,10 @@ export default function TopBar() {
     navigate('/login', { replace: true });
   };
 
+  // Slightly translucent so the global Light Ripple backdrop glows through
+  // instead of being blocked by a solid bar.
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-ink-950">
+    <header className="sticky top-0 z-30 border-b border-line/10 bg-ink-950/70 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-3">
         <Link to="/">
           <Brand />

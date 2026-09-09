@@ -29,16 +29,17 @@ export default {
           600: 'rgb(var(--slate-600) / <alpha-value>)',
           700: 'rgb(var(--slate-700) / <alpha-value>)',
         },
-        // Neobrutalism Coral & Cream palette (skill §3/§8): coral primary,
-        // pastel-adjacent accents, #111 lines (via --line/--nb-line vars).
+        // Light Ripple palette (skill: light-ripple) — primary is the Ice
+        // tint's own cyan (tint [0.3, 0.8, 1.0] → #4DCCFF) so buttons and
+        // focus states echo the shader glow instead of fighting it.
         primary: {
-          DEFAULT: '#E8635A',
-          hover: '#C74A42',
-          soft: '#F08A82',
-          faint: 'rgba(232, 99, 90, 0.14)',
+          DEFAULT: '#4DCCFF',
+          hover: '#7AD9FF',
+          soft: '#A8E4FF',
+          faint: 'rgba(77, 204, 255, 0.14)',
         },
         accent: '#4ECDC4',
-        // Neobrutalism accent pool for icon boxes / badges / decor.
+        // Accent pool for icon boxes / badges / decor.
         lav: '#C4B5FD',
         sun: '#FFE566',
         bloom: '#F9A8B8',
@@ -54,18 +55,19 @@ export default {
         sans: ['DM Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
-      // Neobrutalism: 2px lines are the default border weight everywhere.
+      // Light Ripple: hairline borders everywhere (the neobrutalist 2px
+      // lines and zero-blur offset shadows are retired).
       borderWidth: {
-        DEFAULT: '2px',
+        DEFAULT: '1px',
       },
       boxShadow: {
-        // Zero blur, always (skill §3 shadow rule — never break).
-        card: '4px 4px 0 0 rgb(var(--nb-line) / 0.9)',
-        'card-sm': '3px 3px 0 0 rgb(var(--nb-line) / 0.9)',
-        'card-lg': '6px 6px 0 0 rgb(var(--nb-line) / 0.9)',
-        // Formerly the purple glow — now a hard coral offset for CTAs.
-        glow: '4px 4px 0 0 rgb(var(--nb-line) / 0.9)',
-        'glow-hover': '2px 2px 0 0 rgb(var(--nb-line) / 0.9)',
+        // Soft ambient depth for glass panels floating on the shader.
+        card: '0 8px 30px rgb(0 0 0 / 0.35)',
+        'card-sm': '0 4px 16px rgb(0 0 0 / 0.3)',
+        'card-lg': '0 16px 50px rgb(0 0 0 / 0.45)',
+        // Ice glow — echoes the shader's cyan for CTAs and active states.
+        glow: '0 0 24px rgb(77 204 255 / 0.35)',
+        'glow-hover': '0 0 44px rgb(77 204 255 / 0.55)',
       },
       keyframes: {
         'fade-in': {

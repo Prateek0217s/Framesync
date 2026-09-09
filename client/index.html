@@ -6,22 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FrameSync — Video Review & Conditional Delivery</title>
     <script>
-      // Apply the persisted (or system) theme before first paint so the app
-      // never flashes the wrong shell. Default is the Coral & Cream
-      // neobrutalist theme (`html.light`); saved 'dark' gets Dark Brut.
+      // Apply the persisted theme before first paint so the app never
+      // flashes the wrong shell. Default is Dark Brut (`:root`, unclassed)
+      // so the Light Ripple shader backdrop is visible everywhere; the
+      // cream Coral & Cream theme (`html.light`) paints over the canvas.
       (function () {
         try {
           var t = localStorage.getItem('fs-theme');
-          if (
-            t === 'dark' ||
-            (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)
-          ) {
-            return; // Dark Brut = unclassed :root
+          if (t === 'light') {
+            document.documentElement.classList.add('light');
           }
-          document.documentElement.classList.add('light');
         } catch (e) {
-          /* private mode etc. — fall back to the cream default */
-          document.documentElement.classList.add('light');
+          /* private mode etc. — fall back to the dark ripple default */
         }
       })();
     </script>

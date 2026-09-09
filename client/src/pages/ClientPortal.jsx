@@ -113,6 +113,8 @@ export default function ClientPortal() {
   };
 
   // ---- Non-ready states ----
+  // Both sit on the global Light Ripple backdrop (App.jsx), which shows
+  // through in the dark theme.
   if (phase === 'verifying') {
     return (
       <div className="grid min-h-screen place-items-center">
@@ -149,7 +151,7 @@ export default function ClientPortal() {
   return (
     <div className="min-h-screen">
       {/* Slim client header */}
-      <header className="sticky top-0 z-30 border-b border-line bg-ink-950">
+      <header className="sticky top-0 z-30 border-b border-line/10 bg-ink-950/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
             <Brand size="sm" />

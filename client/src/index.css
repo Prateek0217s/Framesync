@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  /* Theme tokens — Neobrutalism (skill: neobrutalism-design, Coral & Cream,
-     standard weight). Dark mode is the skill's "Dark Brut" variant so the
-     existing theme toggle keeps working: cream default, #111/#fff hard lines.
-     Values are space-separated RGB triplets so Tailwind can apply
-     <alpha-value> modifiers. `--nb-line` drives both borders and the
-     zero-blur offset shadows (never break: shadow color == border color). */
+  /* Theme tokens — Light Ripple (skill: light-ripple). The default look is
+     the skill's own: near-black ground with the animated ice-cyan shader
+     (App.jsx) behind translucent glass surfaces and white text. The light
+     theme is the calm cream variant — the body paints over the near-black
+     canvas. Values are space-separated RGB triplets so Tailwind can apply
+     <alpha-value> modifiers; `--line` is used at low alpha for hairlines. */
   :root {
     color-scheme: dark;
     --ink-950: 17 17 17;
@@ -18,7 +18,6 @@
     --ink-700: 47 47 47;
     --ink-600: 60 60 60;
     --line: 255 255 255;
-    --nb-line: 255 255 255;
     --slate-100: 241 245 249;
     --slate-200: 226 232 240;
     --slate-300: 203 213 225;
@@ -30,9 +29,8 @@
     --scroll-thumb-hover: #555555;
   }
 
-  /* Coral & Cream — the default FrameSync look. Surfaces are warm ivory
-     (never pure #FFF — white on cream reads cold and clinical); the page
-     sits a step deeper in the cream family so cards still separate. */
+  /* Cream variant — the body is opaque here, painting over the near-black
+     shader canvas. Warm ivory surfaces (never pure #FFF). */
   html.light {
     color-scheme: light;
     --ink-950: 240 235 210;
@@ -42,7 +40,6 @@
     --ink-700: 237 230 200;
     --ink-600: 227 219 183;
     --line: 17 17 17;
-    --nb-line: 17 17 17;
     --slate-100: 15 23 42;
     --slate-200: 30 41 59;
     --slate-300: 51 65 85;
@@ -60,12 +57,28 @@
     height: 100%;
   }
 
+  /* Ground layering for the Light Ripple backdrop (App.jsx mounts a fixed
+     -z-10 shader canvas): html carries a solid fallback color (visible if
+     WebGL is unavailable); the dark body is transparent so the ripple shows
+     through everywhere; the cream body is opaque and paints over the
+     near-black canvas. */
+  html {
+    background: #111111;
+  }
+  html.light {
+    background: rgb(var(--ink-950));
+  }
+
   body {
-    @apply bg-ink-950 text-slate-200 font-sans antialiased;
+    @apply text-slate-200 font-sans antialiased;
+    background: transparent;
+  }
+  html.light body {
+    background: rgb(var(--ink-950));
   }
 
   ::selection {
-    background: rgba(232, 99, 90, 0.35);
+    background: rgba(77, 204, 255, 0.35);
   }
 
   /* Slim scrollbars that match the active shell. */
@@ -90,28 +103,25 @@
 }
 
 @layer components {
-  /* Neobrutalist card — hard 2px line, zero-blur offset shadow. Shadow is
-     selective per the skill: dense surfaces (kanban cards, comment rows)
-     can drop it with .fs-card-flat. */
+  /* Glass panel over the Light Ripple backdrop — hairline border, soft
+     translucency, backdrop blur so the shader glows through the surface.
+     Dense surfaces (kanban cards, comment rows) can drop the blur cost
+     with .fs-card-flat. */
   .fs-card {
-    @apply rounded-xl border border-line bg-ink-850;
-    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+    @apply rounded-xl border border-line/10 bg-ink-850/70 backdrop-blur-md;
   }
   .fs-card-flat {
-    @apply rounded-xl border border-line bg-ink-850;
-    box-shadow: none;
+    @apply rounded-xl border border-line/10 bg-ink-850/70;
   }
 
   .fs-input {
-    @apply w-full rounded-lg border border-line bg-ink-900 px-3 py-2.5 text-sm text-slate-100
-      placeholder:text-slate-500 outline-none transition;
-    box-shadow: 3px 3px 0 0 rgb(var(--nb-line) / 0.9);
+    @apply w-full rounded-lg border border-line/10 bg-ink-900/80 px-3 py-2.5 text-sm text-slate-100
+      placeholder:text-slate-500 outline-none transition backdrop-blur-md;
   }
-  /* Focus: coral hard shadow + slight lift, the skill's signature input move. */
+  /* Focus: ice-cyan ring — the shader's own hue. */
   .fs-input:focus {
-    border-color: #e8635a;
-    box-shadow: 4px 4px 0 0 #e8635a;
-    transform: translate(-1px, -1px);
+    border-color: rgb(77 204 255 / 0.6);
+    box-shadow: 0 0 0 3px rgb(77 204 255 / 0.22);
   }
 
   .fs-label {
@@ -127,54 +137,48 @@
 
   /* Buttons are self-contained (no @apply of custom classes) — every variant
      repeats the base utilities so Tailwind never has to resolve .fs-btn.
-     Neobrutalist press-down: hover slides into the shadow, active removes it. */
+     Light Ripple style: flat minimal surfaces; hover adds an ice glow or a
+     brighter fill, active gives a tiny settle. */
   .fs-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none;
   }
   .fs-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      border border-line bg-primary text-white;
-    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+      bg-primary;
+    color: #062430;
   }
   .fs-btn-primary:hover:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+    box-shadow: 0 0 24px rgb(77 204 255 / 0.45);
   }
   .fs-btn-primary:active:not(:disabled) {
-    transform: translate(4px, 4px);
-    box-shadow: none;
+    transform: scale(0.98);
   }
   .fs-btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      border border-line bg-ink-800 text-slate-200;
-    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+      border border-line/15 bg-white/5 text-slate-100 backdrop-blur-md;
   }
   .fs-btn-ghost:hover:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+    background-color: rgb(255 255 255 / 0.1);
   }
   .fs-btn-ghost:active:not(:disabled) {
-    transform: translate(4px, 4px);
-    box-shadow: none;
+    transform: scale(0.98);
   }
   .fs-btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
       transition disabled:cursor-not-allowed disabled:opacity-50 select-none
-      border border-line bg-ink-800 text-slate-200;
-    box-shadow: 4px 4px 0 0 rgb(var(--nb-line) / 0.9);
+      border border-red-400/25 bg-red-500/15 text-red-300;
   }
   .fs-btn-danger:hover:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 0 rgb(var(--nb-line) / 0.9);
+    background-color: rgb(239 68 68 / 0.25);
   }
   .fs-btn-danger:active:not(:disabled) {
-    transform: translate(4px, 4px);
-    box-shadow: none;
+    transform: scale(0.98);
   }
   html.light .fs-btn-danger {
+    border-color: rgb(185 28 28 / 0.25);
     background-color: #ffe5e5;
     color: #b91c1c;
   }
@@ -182,8 +186,8 @@
     background-color: #ffd6d6;
   }
 
-  /* Kanban stage badges. */
+  /* Kanban stage badges — variants pass their own bg/text colors. */
   .fs-badge {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
   }
 }

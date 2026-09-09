@@ -16,7 +16,7 @@ export default function Modal({ open, onClose, title, children, footer, size = '
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">
       <div
-        className="absolute inset-0 bg-ink-950/80"
+        className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
