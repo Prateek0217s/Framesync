@@ -74,9 +74,15 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(4px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Terminal loader cursor blink (prompt-kit "terminal" variant).
+        'terminal-cursor': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
+        'terminal-cursor': 'terminal-cursor 1s step-end infinite',
       },
     },
   },

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { UploadCloud, Loader2, CheckCircle2, Lock, Film, Cpu } from 'lucide-react';
+import { UploadCloud, Loader2, CheckCircle2, Lock, Film } from 'lucide-react';
+import TerminalLoader from './TerminalLoader';
 import toast from 'react-hot-toast';
 import { uploadsApi, projectsApi, putToS3 } from '../services/api';
 import { compressVideo } from '../lib/ffmpeg';
@@ -174,7 +175,7 @@ export default function MediaUpload({ project, variant, disabled, onDone }) {
         <div className="rounded-xl border border-line bg-ink-900/60 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm text-slate-200">
             {phase === 'compressing' ? (
-              <Cpu size={16} className="animate-pulse text-accent" />
+              <TerminalLoader size={20} className="text-accent" />
             ) : (
               <Loader2 size={16} className="animate-spin text-primary-soft" />
             )}
