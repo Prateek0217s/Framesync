@@ -9,6 +9,7 @@ import {
 } from '@dnd-kit/core';
 import KanbanColumn from './KanbanColumn';
 import ProjectCard from './ProjectCard';
+import Spotlight from '../Spotlight';
 import { STAGES } from '../../lib/constants';
 
 /**
@@ -46,15 +47,24 @@ export default function KanbanBoard({ projects, onOpen, onStatusChange }) {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {STAGES.map((status) => (
-          <KanbanColumn
-            key={status}
-            status={status}
-            projects={byStatus(status)}
-            onOpen={onOpen}
-          />
-        ))}
+      {/* Relative shell so the spotlight bounds cover the board incl. its
+          scroll padding (an overlay inside the scroll container itself
+          would pan with the columns). */}
+      <div className="relative">
+        <Spotlight
+          size={440}
+          className="from-primary/20 via-primary/10 to-transparent blur-3xl"
+        />
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {STAGES.map((status) => (
+            <KanbanColumn
+              key={status}
+              status={status}
+              projects={byStatus(status)}
+              onOpen={onOpen}
+            />
+          ))}
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>

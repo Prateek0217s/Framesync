@@ -15,6 +15,10 @@ import * as THREE from 'three';
  *   dispersion  — RGB channel offset for the spectrum look (ignored if tint)
  *   tint        — [r,g,b] 0–1 monochrome glow; null = full spectrum
  *   brightness  — overall intensity multiplier
+ *   invert      — light-theme variant: white ground with the arcs subtracted
+ *                 instead of black ground with them added. The arcs subtract
+ *                 the tint's complement, so an ice tint stays ice-cyan on
+ *                 white rather than flipping to its inverse hue.
  */
 export default function ShaderBackground({
   speed = 1,
@@ -22,6 +26,7 @@ export default function ShaderBackground({
   dispersion = 0.01,
   tint = null,
   brightness = 1,
+  invert = false,
   className = 'h-full w-full',
   style,
 }) {
@@ -44,6 +49,7 @@ export default function ShaderBackground({
       uniform vec3 uTint;
       uniform float uUseTint;
       uniform float uBrightness;
+      uniform float uInvert;
 
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
@@ -57,8 +63,13 @@ export default function ShaderBackground({
           }
         }
         float mono = (color.r + color.g + color.b) / 3.0;
-        vec3 finalColor = mix(color, mono * uTint, uUseTint);
-        gl_FragColor = vec4(finalColor * uBrightness, 1.0);
+        // Dark theme: arcs add the tint to a black ground.
+        vec3 darkColor = mix(color, mono * uTint, uUseTint) * uBrightness;
+        // Light theme: arcs subtract the tint's complement from a white
+        // ground — same hue, opposite polarity.
+        vec3 lightColor = vec3(1.0) -
+          mix(color, mono * (vec3(1.0) - uTint), uUseTint) * uBrightness;
+        gl_FragColor = vec4(mix(darkColor, lightColor, uInvert), 1.0);
       }
     `;
 
@@ -76,6 +87,7 @@ export default function ShaderBackground({
       uTint: { value: new THREE.Vector3(...(tint ?? [1, 1, 1])) },
       uUseTint: { value: tint ? 1.0 : 0.0 },
       uBrightness: { value: brightness },
+      uInvert: { value: invert ? 1.0 : 0.0 },
     };
 
     const material = new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader });
@@ -119,13 +131,13 @@ export default function ShaderBackground({
     };
     // tint must be a stable reference (module constant / useMemo) or the
     // canvas will re-initialize on every parent render.
-  }, [speed, lineWidth, dispersion, tint, brightness]);
+  }, [speed, lineWidth, dispersion, tint, brightness, invert]);
 
   return (
     <div
       ref={containerRef}
       className={className}
-      style={{ background: '#000', overflow: 'hidden', ...style }}
+      style={{ background: invert ? '#fff' : '#000', overflow: 'hidden', ...style }}
     />
   );
 }

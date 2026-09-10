@@ -284,7 +284,7 @@ export default function VideoReviewer({
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
               Add feedback
             </span>
-            <span className="rounded-md bg-ink-950 px-2 py-0.5 font-mono text-xs text-primary-soft">
+            <span className="fs-timecode">
               @ {formatTimecode(currentTime)}
             </span>
           </div>

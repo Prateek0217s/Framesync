@@ -184,7 +184,6 @@ export default function ProjectDetail() {
 
           <div className="flex flex-wrap items-center gap-2">
             <span className={`fs-badge ${meta.badge}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
               {meta.label}
             </span>
             <select

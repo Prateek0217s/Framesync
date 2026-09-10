@@ -9,28 +9,24 @@ export const STAGES = [
 export const STAGE_META = {
   'Pre-Production': {
     label: 'Pre-Production',
-    dot: 'bg-stage-pre',
     text: 'text-slate-300',
     ring: 'ring-stage-pre/40',
     badge: 'bg-slate-500/15 text-slate-300',
   },
   'Rough Cut': {
     label: 'Rough Cut',
-    dot: 'bg-stage-rough',
     text: 'text-amber-300',
     ring: 'ring-stage-rough/40',
     badge: 'bg-amber-500/15 text-amber-300',
   },
   'Client Review': {
     label: 'Client Review',
-    dot: 'bg-stage-review',
     text: 'text-blue-300',
     ring: 'ring-stage-review/40',
     badge: 'bg-blue-500/15 text-blue-300',
   },
   Approved: {
     label: 'Approved',
-    dot: 'bg-stage-approved',
     text: 'text-emerald-300',
     ring: 'ring-stage-approved/40',
     badge: 'bg-emerald-500/15 text-emerald-300',

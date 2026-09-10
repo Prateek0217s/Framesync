@@ -2,13 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* App font — Magneto Bold (public/fonts/MAGNETOB.TTF), the primary sans for
+   the whole app (see tailwind.config.js fontFamily.sans). Locally hosted so
+   it works offline and isn't subject to Google Fonts availability. */
+@font-face {
+  font-family: 'Magneto';
+  src: url('/fonts/MAGNETOB.TTF') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /* Theme tokens — Light Ripple (skill: light-ripple). The default look is
      the skill's own: near-black ground with the animated ice-cyan shader
      (App.jsx) behind translucent glass surfaces and white text. The light
-     theme is the calm cream variant — the body paints over the near-black
-     canvas. Values are space-separated RGB triplets so Tailwind can apply
-     <alpha-value> modifiers; `--line` is used at low alpha for hairlines. */
+     theme ("ice light") mirrors that architecture instead of fighting it:
+     the shader inverts to a white ground with ice arcs, surfaces become
+     frosted white glass, text flips to cool navy — no beige, no opaque
+     paint-over. Values are space-separated RGB triplets so Tailwind can
+     apply <alpha-value> modifiers; `--line` is used at low alpha for
+     hairlines. */
   :root {
     color-scheme: dark;
     --ink-950: 17 17 17;
@@ -29,16 +43,19 @@
     --scroll-thumb-hover: #555555;
   }
 
-  /* Cream variant — the body is opaque here, painting over the near-black
-     shader canvas. Warm ivory surfaces (never pure #FFF). */
+  /* Ice light variant — the mirror of the dark theme: cool near-white
+     ramp (950 = deepest ground tone, 850 = frosted card surface), black
+     hairlines at low alpha, navy text. Surfaces stay translucent so the
+     inverted white shader (App.jsx) glows through the same way the dark
+     ripple does. */
   html.light {
     color-scheme: light;
-    --ink-950: 240 235 210;
-    --ink-900: 255 250 226;
-    --ink-850: 255 251 235;
-    --ink-800: 246 240 214;
-    --ink-700: 237 230 200;
-    --ink-600: 227 219 183;
+    --ink-950: 226 237 246;
+    --ink-900: 237 245 251;
+    --ink-850: 246 250 253;
+    --ink-800: 231 240 247;
+    --ink-700: 219 231 241;
+    --ink-600: 204 219 233;
     --line: 17 17 17;
     --slate-100: 15 23 42;
     --slate-200: 30 41 59;
@@ -47,8 +64,8 @@
     --slate-500: 100 116 139;
     --slate-600: 148 163 184;
     --slate-700: 203 213 225;
-    --scroll-thumb: #cfc9a3;
-    --scroll-thumb-hover: #b5af87;
+    --scroll-thumb: #b6c5d3;
+    --scroll-thumb-hover: #9bacc0;
   }
 
   html,
@@ -59,9 +76,9 @@
 
   /* Ground layering for the Light Ripple backdrop (App.jsx mounts a fixed
      -z-10 shader canvas): html carries a solid fallback color (visible if
-     WebGL is unavailable); the dark body is transparent so the ripple shows
-     through everywhere; the cream body is opaque and paints over the
-     near-black canvas. */
+     WebGL is unavailable); the body is transparent in both themes so the
+     shader shows through everywhere — dark ripple on black, inverted ice
+     arcs on white. */
   html {
     background: #111111;
   }
@@ -72,9 +89,6 @@
   body {
     @apply text-slate-200 font-sans antialiased;
     background: transparent;
-  }
-  html.light body {
-    background: rgb(var(--ink-950));
   }
 
   ::selection {
@@ -163,6 +177,10 @@
   .fs-btn-ghost:hover:not(:disabled) {
     background-color: rgb(255 255 255 / 0.1);
   }
+  /* Dark hover brightens the surface; light hover darkens it — same intent. */
+  html.light .fs-btn-ghost:hover:not(:disabled) {
+    background-color: rgb(15 23 42 / 0.06);
+  }
   .fs-btn-ghost:active:not(:disabled) {
     transform: scale(0.98);
   }
@@ -189,5 +207,15 @@
   /* Kanban stage badges — variants pass their own bg/text colors. */
   .fs-badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  /* Video timecode chip (comments, feedback composer). Pale cyan reads on
+     the dark chip; on the light theme's frosted surface it would vanish —
+     deep cyan instead. */
+  .fs-timecode {
+    @apply rounded-md bg-ink-950 px-2 py-0.5 font-mono text-xs text-primary-soft;
+  }
+  html.light .fs-timecode {
+    color: #0369a1;
   }
 }

@@ -104,7 +104,6 @@ export default function AgencyDashboard() {
           {STAGES.map((s) => (
             <div key={s} className="fs-card flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 rounded-full ${STAGE_META[s].dot}`} />
                 <span className="text-sm text-slate-300">{STAGE_META[s].label}</span>
               </div>
               <span className="text-lg font-bold text-slate-100">{counts[s]}</span>

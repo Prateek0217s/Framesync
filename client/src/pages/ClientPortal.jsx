@@ -161,7 +161,6 @@ export default function ClientPortal() {
           </div>
           <div className="flex items-center gap-3">
             <span className={`fs-badge ${meta.badge}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
               {meta.label}
             </span>
             {me?.name && (

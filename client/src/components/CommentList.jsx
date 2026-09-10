@@ -43,7 +43,7 @@ export default function CommentList({
             >
               <div className="mb-1 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-ink-950 px-2 py-0.5 font-mono text-xs text-primary-soft">
+                  <span className="fs-timecode">
                     {formatTimecodePrecise(c.timestamp || 0)}
                   </span>
                   {hasSketch && (

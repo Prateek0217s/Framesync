@@ -6,9 +6,9 @@ export default {
     extend: {
       colors: {
         // FrameSync palette is theme-aware: every token resolves to an RGB
-        // CSS variable defined in index.css (`html.light` = Coral & Cream
-        // neobrutalism default, `:root` = Dark Brut variant). Alpha modifiers
-        // (/50 etc.) keep working via <alpha-value>.
+        // CSS variable defined in index.css (`:root` = Dark Brut over the
+        // ice ripple, `html.light` = Ice Light — the cool mirror of the dark
+        // theme). Alpha modifiers (/50 etc.) keep working via <alpha-value>.
         ink: {
           950: 'rgb(var(--ink-950) / <alpha-value>)',
           900: 'rgb(var(--ink-900) / <alpha-value>)',
@@ -52,7 +52,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['DM Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // App font — Magneto Bold via @font-face in index.css.
+        sans: ['Magneto', 'DM Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       // Light Ripple: hairline borders everywhere (the neobrutalist 2px
@@ -79,10 +80,35 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0' },
         },
+        // Kanban stack entrance (motion-primitives AnimatedGroup variant):
+        // cards drop in from above, blurred and edge-on (rotateX 90°), then
+        // spring-settle with a bounce. Overshoot keyframes approximate the
+        // demo's spring (bounce 0.3, duration 1).
+        'stack-in': {
+          '0%': {
+            opacity: '0',
+            filter: 'blur(12px)',
+            transform: 'translateY(-60px) rotateX(90deg)',
+          },
+          '55%': {
+            opacity: '1',
+            filter: 'blur(0px)',
+            transform: 'translateY(10px) rotateX(-10deg)',
+          },
+          '75%': {
+            transform: 'translateY(-5px) rotateX(4deg)',
+          },
+          '100%': {
+            opacity: '1',
+            filter: 'blur(0px)',
+            transform: 'translateY(0) rotateX(0deg)',
+          },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
         'terminal-cursor': 'terminal-cursor 1s step-end infinite',
+        'stack-in': 'stack-in 0.9s ease-out both',
       },
     },
   },

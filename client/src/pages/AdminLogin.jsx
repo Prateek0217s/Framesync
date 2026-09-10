@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Brand from '../components/Brand';
+import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 
@@ -36,9 +37,14 @@ export default function AdminLogin() {
   };
 
   return (
-    // The global Light Ripple backdrop (App.jsx) shows through here in the
-    // dark theme; the cream theme paints over it.
-    <div className="grid min-h-screen place-items-center p-6">
+    // The global Light Ripple backdrop (App.jsx) shows through here in both
+    // themes — dark ripple on black, inverted ice arcs on white.
+    <div className="relative grid min-h-screen place-items-center p-6">
+      {/* Theme toggle — the login page renders outside TopBar, so mount it
+          here in the corner. */}
+      <div className="absolute right-6 top-6">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           <Brand size="lg" />
