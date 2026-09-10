@@ -180,6 +180,4 @@ docker compose --profile storage up
 See [`FrameSync_PDD.md`](./FrameSync_PDD.md) for the full product design
 document.
 
-<div align="center">
-<sub>Built with the Silver Star post-production workflow in mind.</sub>
-</div>
+
