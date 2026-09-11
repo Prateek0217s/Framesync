@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* App font — Magneto Bold (public/fonts/MAGNETOB.TTF), the primary sans for
-   the whole app (see tailwind.config.js fontFamily.sans). Locally hosted so
-   it works offline and isn't subject to Google Fonts availability. */
-@font-face {
-  font-family: 'Magneto';
-  src: url('/fonts/MAGNETOB.TTF') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   /* Theme tokens — Light Ripple (skill: light-ripple). The default look is
      the skill's own: near-black ground with the animated ice-cyan shader

@@ -52,8 +52,7 @@ export default {
         },
       },
       fontFamily: {
-        // App font — Magneto Bold via @font-face in index.css.
-        sans: ['Magneto', 'DM Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       // Light Ripple: hairline borders everywhere (the neobrutalist 2px
