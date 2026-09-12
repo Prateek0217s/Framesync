@@ -11,6 +11,15 @@ const projectSchema = new mongoose.Schema(
       required: [true, 'Please add a project title'],
       trim: true,
     },
+    // Owning agency account. Denormalized from the parent Client so the board
+    // query and authorizeProjectAccess both work off this document alone —
+    // no join, no second lookup. Kept in sync wherever clientId is set.
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
     clientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
@@ -30,5 +39,9 @@ const projectSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Board list: my projects, newest first. Status filter rides the same index.
+projectSchema.index({ ownerId: 1, createdAt: -1 });
+projectSchema.index({ ownerId: 1, status: 1 });
 
 module.exports = mongoose.model('Project', projectSchema);

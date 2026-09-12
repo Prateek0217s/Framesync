@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Client = require('../models/Client');
 const Project = require('../models/Project');
 const ReviewLink = require('../models/ReviewLink');
+const { OAuth2Client } = require('google-auth-library');
 const generateToken = require('../utils/tokenGenerator');
 const { signToken } = require('../utils/jwt');
 const { sendReviewLinkEmail } = require('../utils/emailTemplates');
@@ -65,16 +66,86 @@ const login = async (req, res) => {
   res.json({ token, user: { _id: user._id, email: user.email, name: user.name, role: user.role } });
 };
 
+// POST /api/auth/google — exchange a Google Identity Services ID token for a
+// 7-day app JWT. Mirrors `login`: the same token mint and the same trimmed user
+// payload, so the client's session handling is identical either way.
+//
+// The ID token is verified against GOOGLE_CLIENT_ID (audience), which is what
+// makes it trustworthy — an attacker can't forge one for our client id.
+const googleLogin = async (req, res) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) {
+    // Half-configured deploy: say so plainly instead of failing inside the
+    // verifier with an opaque audience error.
+    return res.status(503).json({ message: 'Google sign-in is not configured.' });
+  }
+
+  let payload;
+  try {
+    const ticket = await new OAuth2Client(clientId).verifyIdToken({
+      idToken: req.body.credential,
+      audience: clientId,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    return res.status(401).json({ message: 'Invalid Google credential' });
+  }
+
+  const { email, email_verified: emailVerified, name, sub } = payload || {};
+  if (!email || !emailVerified) {
+    return res
+      .status(401)
+      .json({ message: 'That Google account has no verified email address.' });
+  }
+
+  const normalized = email.toLowerCase();
+  let user = await User.findOne({ email: normalized });
+
+  if (!user) {
+    // First Google sign-in → provision an agency admin with its own empty
+    // workspace. No passwordHash: the schema exempts accounts with a googleId.
+    user = await User.create({
+      email: normalized,
+      name: name || normalized.split('@')[0],
+      role: 'admin',
+      googleId: sub,
+    });
+  } else {
+    if (user.role !== 'admin') {
+      return res
+        .status(403)
+        .json({ message: 'This email is registered as a client reviewer.' });
+    }
+    // Link an existing email+password account to its Google identity on first
+    // Google sign-in, so both routes reach the same workspace.
+    if (!user.googleId) {
+      user.googleId = sub;
+      await user.save();
+    }
+  }
+
+  const token = signToken({ id: user._id, role: user.role });
+  res.json({
+    token,
+    user: { _id: user._id, email: user.email, name: user.name, role: user.role },
+  });
+};
+
 // GET /api/auth/me — return the authenticated profile.
 const getMe = async (req, res) => {
   res.json(req.user);
 };
 
 // POST /api/auth/magic-link/generate — mint a project-scoped review link.
-// (PDD FR-5.1.2/5.1.3). Admin only.
+// (PDD FR-5.1.2/5.1.3). Admin only, and only for a project in the caller's own
+// workspace — otherwise any admin could mint a link for another agency's
+// project and have it emailed to that agency's client.
 const generateMagicLink = async (req, res) => {
   const { projectId } = req.body;
-  const project = await Project.findById(projectId).populate('clientId');
+  const project = await Project.findOne({
+    _id: projectId,
+    ownerId: req.user._id,
+  }).populate('clientId');
   if (!project) {
     return res.status(404).json({ message: 'Project not found' });
   }
@@ -160,4 +231,4 @@ const verifyMagicLink = async (req, res) => {
   });
 };
 
-module.exports = { register, login, getMe, generateMagicLink, verifyMagicLink };
+module.exports = { register, login, googleLogin, getMe, generateMagicLink, verifyMagicLink };

@@ -7,8 +7,9 @@ const { emitToProject, emitToDashboard } = require('../socket');
 const { deleteObject } = require('../utils/storage');
 
 // GET /api/projects  (admin) — supports ?status= & ?clientId= (PDD §8.1).
+// Always scoped to the caller's own workspace.
 const getAllProjects = async (req, res) => {
-  const filter = {};
+  const filter = { ownerId: req.user._id };
   if (req.query.status) filter.status = req.query.status;
   if (req.query.clientId) filter.clientId = req.query.clientId;
 
@@ -21,17 +22,25 @@ const getAllProjects = async (req, res) => {
 // POST /api/projects  (admin)
 const createProject = async (req, res) => {
   const { title, clientId } = req.body;
-  const client = await Client.findById(clientId);
+  // The client must belong to the caller — otherwise an admin could attach
+  // their project to another agency's brand.
+  const client = await Client.findOne({ _id: clientId, ownerId: req.user._id });
   if (!client) return res.status(404).json({ message: 'Client not found' });
-  const project = await Project.create({ title, clientId });
+  const project = await Project.create({
+    title,
+    clientId,
+    ownerId: req.user._id,
+  });
   const populated = await project.populate('clientId', 'clientName logoUrl _id');
   res.status(201).json(populated);
 };
 
 // GET /api/projects/:id  (admin or scoped client) — access checked by middleware.
+// Reuses the document authorizeProjectAccess already resolved rather than
+// re-fetching unguarded: if that middleware is ever dropped from the route, this
+// fails closed instead of leaking another agency's project.
 const getProjectById = async (req, res) => {
-  const project = await Project.findById(req.params.id).populate('clientId');
-  if (!project) return res.status(404).json({ message: 'Project not found' });
+  const project = await req.project.populate('clientId');
   res.json(project);
 };
 
@@ -43,10 +52,23 @@ const updateProject = async (req, res) => {
   for (const key of allowed) {
     if (req.body[key] !== undefined) update[key] = req.body[key];
   }
-  const project = await Project.findByIdAndUpdate(req.params.id, update, {
-    new: true,
-    runValidators: true,
-  }).populate('clientId', 'clientName logoUrl _id');
+
+  // Reassigning a project to a different brand must respect the tenant
+  // boundary — the new client has to be one of the caller's own.
+  if (update.clientId !== undefined) {
+    const client = await Client.findOne({
+      _id: update.clientId,
+      ownerId: req.user._id,
+    });
+    if (!client) return res.status(404).json({ message: 'Client not found' });
+    update.ownerId = client.ownerId;
+  }
+
+  const project = await Project.findOneAndUpdate(
+    { _id: req.params.id, ownerId: req.user._id },
+    update,
+    { new: true, runValidators: true }
+  ).populate('clientId', 'clientName logoUrl _id');
   if (!project) return res.status(404).json({ message: 'Project not found' });
   res.json(project);
 };
@@ -66,8 +88,8 @@ const updateProjectStatus = async (req, res) => {
     });
   }
 
-  const project = await Project.findByIdAndUpdate(
-    req.params.id,
+  const project = await Project.findOneAndUpdate(
+    { _id: req.params.id, ownerId: req.user._id },
     { status },
     { new: true }
   );
@@ -75,13 +97,16 @@ const updateProjectStatus = async (req, res) => {
 
   const payload = { projectId: String(project._id), newStatus: status };
   emitToProject(project._id, 'project:statusChanged', payload);
-  emitToDashboard('project:statusChanged', payload);
+  emitToDashboard(project.ownerId, 'project:statusChanged', payload);
   res.json(project);
 };
 
 // DELETE /api/projects/:id  (admin) — cascade remove dependents.
 const deleteProject = async (req, res) => {
-  const project = await Project.findByIdAndDelete(req.params.id);
+  const project = await Project.findOneAndDelete({
+    _id: req.params.id,
+    ownerId: req.user._id,
+  });
   if (!project) return res.status(404).json({ message: 'Project not found' });
 
   // Best-effort removal of the project's private media so nothing is left

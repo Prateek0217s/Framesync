@@ -17,6 +17,12 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+// The Google Identity Services ID token (a JWT). Its length floor is a cheap
+// shape check only — real verification happens against GOOGLE_CLIENT_ID.
+const googleAuthSchema = z.object({
+  credential: z.string().min(20),
+});
+
 const magicLinkGenerateSchema = z.object({
   projectId: objectId,
 });
@@ -94,6 +100,7 @@ const approveSchema = z.object({
 module.exports = {
   registerSchema,
   loginSchema,
+  googleAuthSchema,
   magicLinkGenerateSchema,
   createClientSchema,
   createProjectSchema,

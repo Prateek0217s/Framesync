@@ -1,14 +1,89 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Brand from '../components/Brand';
 import ThemeToggle from '../components/ThemeToggle';
+import useTheme from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+// Google Identity Services renders its own button into a container we own.
+// Returns nothing at all when no Client ID is configured, so an unconfigured
+// deployment shows the plain email+password form rather than a broken widget.
+function GoogleSignIn({ onCredential, disabled }) {
+  const light = useTheme();
+  const holder = useRef(null);
+  const [ready, setReady] = useState(false);
+
+  // Held in a ref so the render effect below doesn't re-run (and rebuild the
+  // button) every time the parent re-renders with a new callback identity.
+  const credentialHandler = useRef(onCredential);
+  credentialHandler.current = onCredential;
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return undefined;
+
+    // The GIS script is async/defer, so window.google may not exist yet on
+    // first render — poll briefly, then give up quietly.
+    let cancelled = false;
+    let tries = 0;
+    const timer = setInterval(() => {
+      if (cancelled) return;
+      if (window.google?.accounts?.id) {
+        clearInterval(timer);
+        setReady(true);
+      } else if (++tries > 100) {
+        clearInterval(timer);
+      }
+    }, 100);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !holder.current) return;
+
+    // GIS *appends* its iframe on every renderButton call, so a re-render
+    // (e.g. a theme flip, which changes the button theme) would stack a second
+    // button on top of the first. Clear the container first.
+    holder.current.innerHTML = '';
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: ({ credential }) => credentialHandler.current(credential),
+    });
+    window.google.accounts.id.renderButton(holder.current, {
+      type: 'standard',
+      theme: light ? 'outline' : 'filled_black',
+      size: 'large',
+      text: 'continue_with',
+      shape: 'rectangular',
+      logo_alignment: 'left',
+      width: 320,
+    });
+  }, [ready, light]);
+
+  if (!GOOGLE_CLIENT_ID) return null;
+
+  return (
+    <div className={`mb-5 ${disabled ? 'pointer-events-none opacity-60' : ''}`}>
+      <div className="flex justify-center" ref={holder} />
+      <div className="my-5 flex items-center gap-3">
+        <span className="h-px flex-1 bg-line/10" />
+        <span className="text-xs uppercase tracking-wide text-slate-500">or</span>
+        <span className="h-px flex-1 bg-line/10" />
+      </div>
+    </div>
+  );
+}
+
 export default function AdminLogin() {
-  const { loginAdmin } = useAuth();
+  const { loginAdmin, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
@@ -31,6 +106,18 @@ export default function AdminLogin() {
       navigate(from, { replace: true });
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Authentication failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleGoogle = async (credential) => {
+    setBusy(true);
+    try {
+      await loginWithGoogle(credential);
+      navigate(from, { replace: true });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Google sign-in failed');
     } finally {
       setBusy(false);
     }
@@ -68,6 +155,8 @@ export default function AdminLogin() {
               </button>
             ))}
           </div>
+
+          <GoogleSignIn onCredential={handleGoogle} disabled={busy} />
 
           <form onSubmit={submit} className="flex flex-col gap-4">
             {mode === 'register' && (

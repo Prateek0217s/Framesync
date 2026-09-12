@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   register,
   login,
+  googleLogin,
   getMe,
   generateMagicLink,
   verifyMagicLink,
@@ -15,11 +16,13 @@ const asyncHandler = require('../utils/asyncHandler');
 const {
   registerSchema,
   loginSchema,
+  googleAuthSchema,
   magicLinkGenerateSchema,
 } = require('../validators');
 
 router.post('/register', validate(registerSchema), asyncHandler(register));
 router.post('/login', validate(loginSchema), asyncHandler(login));
+router.post('/google', validate(googleAuthSchema), asyncHandler(googleLogin));
 router.get('/me', protect, asyncHandler(getMe));
 
 router.post(

@@ -31,6 +31,12 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap"
       rel="stylesheet"
     />
+    <!-- Google Identity Services — powers the "Continue with Google" button on
+         the login page. Loaded lazily (async defer) so it never blocks first
+         paint; AdminLogin waits for window.google before rendering the button.
+         No COOP/COEP is set (see vite.config.js), so this cross-origin script
+         is unaffected. -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div id="root"></div>

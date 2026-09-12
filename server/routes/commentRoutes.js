@@ -8,7 +8,7 @@ const {
   deleteComment,
 } = require('../controllers/commentController');
 const { protect } = require('../middleware/authMiddleware');
-const { requireAdmin, authorizeProjectAccess } = require('../middleware/rbac');
+const { requireAdmin, authorizeProjectAccess, authorizeCommentAccess } = require('../middleware/rbac');
 const { validate } = require('../middleware/validate');
 const asyncHandler = require('../utils/asyncHandler');
 const { createCommentSchema, resolveCommentSchema } = require('../validators');
@@ -31,14 +31,22 @@ router.post(
   asyncHandler(createComment)
 );
 
-// Resolve / delete: admin only.
+// Resolve / delete: admin only, and only within the caller's own workspace
+// (authorizeCommentAccess resolves the comment's project and checks ownership).
 router.patch(
   '/:id/resolve',
   protect,
   requireAdmin,
   validate(resolveCommentSchema),
+  authorizeCommentAccess,
   asyncHandler(resolveComment)
 );
-router.delete('/:id', protect, requireAdmin, asyncHandler(deleteComment));
+router.delete(
+  '/:id',
+  protect,
+  requireAdmin,
+  authorizeCommentAccess,
+  asyncHandler(deleteComment)
+);
 
 module.exports = router;

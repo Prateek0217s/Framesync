@@ -81,7 +81,6 @@ export default function ProjectDetail() {
 
   const { presence } = useProjectRoom({
     projectId: id,
-    user: user ? { userId: user._id, name: user.name, role: 'admin' } : null,
     onCommentNew: addComment,
     onCommentResolved: ({ commentId, resolved }) =>
       setComments((prev) =>

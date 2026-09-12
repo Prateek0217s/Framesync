@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { getSession, setSession, clearSession } from '../lib/session';
 import { authApi } from '../services/api';
+import { disconnectSocket } from '../services/socket';
 
 const AuthContext = createContext(null);
 
@@ -25,6 +26,17 @@ export const AuthProvider = ({ children }) => {
     [persist]
   );
 
+  // Google Identity Services: the button hands us an ID token, the server
+  // verifies it against GOOGLE_CLIENT_ID and returns the same session shape.
+  const loginWithGoogle = useCallback(
+    async (credential) => {
+      const res = await authApi.googleLogin(credential);
+      persist({ token: res.token, user: res.user });
+      return res.user;
+    },
+    [persist]
+  );
+
   // External reviewer: exchange a magic-link token for a project-scoped
   // client session (PDD §5.1.2 / §5.1.3).
   const loginWithMagicLink = useCallback(
@@ -37,6 +49,9 @@ export const AuthProvider = ({ children }) => {
   );
 
   const logout = useCallback(() => {
+    // Tear down the authenticated socket too — its handshake carries this
+    // session's token, so leaving it connected would keep the old identity alive.
+    disconnectSocket();
     clearSession();
     setSessionState(null);
   }, []);
@@ -48,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'admin',
     isClient: user?.role === 'client',
     loginAdmin,
+    loginWithGoogle,
     loginWithMagicLink,
     logout,
   };

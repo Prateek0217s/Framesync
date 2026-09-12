@@ -3,9 +3,10 @@ import { joinProject, leaveProject, on } from '../services/socket';
 
 // Joins the project war-room (PDD §5.6) and wires real-time events to the
 // caller's handlers. Tracks live presence internally and returns the roster.
+// The socket authenticates with the session token, so the server derives the
+// participant's identity itself — no user object is passed from here.
 export default function useProjectRoom({
   projectId,
-  user,
   onCommentNew,
   onCommentResolved,
   onStatusChanged,
@@ -25,11 +26,7 @@ export default function useProjectRoom({
   useEffect(() => {
     if (!projectId) return undefined;
 
-    joinProject(projectId, {
-      userId: user?.userId || user?.id || user?._id,
-      name: user?.name || 'Guest',
-      role: user?.role,
-    });
+    joinProject(projectId);
 
     const offs = [
       on('user:presence', ({ userId, name, active }) => {

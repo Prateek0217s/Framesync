@@ -32,6 +32,8 @@ const data = (p) => p.then((r) => r.data);
 export const authApi = {
   register: (payload) => data(api.post('/auth/register', payload)),
   login: (email, password) => data(api.post('/auth/login', { email, password })),
+  // Google Identity Services ID token -> app JWT (same shape as login).
+  googleLogin: (credential) => data(api.post('/auth/google', { credential })),
   me: () => data(api.get('/auth/me')),
   generateMagicLink: (projectId) =>
     data(api.post('/auth/magic-link/generate', { projectId })),

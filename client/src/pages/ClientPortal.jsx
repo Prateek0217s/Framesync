@@ -86,7 +86,6 @@ export default function ClientPortal() {
 
   const { presence } = useProjectRoom({
     projectId,
-    user: me ? { userId: me._id, name: me.name, role: 'client' } : null,
     onCommentNew: addComment,
     onCommentResolved: ({ commentId, resolved }) =>
       setComments((prev) =>

@@ -17,11 +17,19 @@ const userSchema = new mongoose.Schema(
     },
     passwordHash: {
       type: String,
-      // Client (magic-link) users never set a password, so this is optional.
+      // Client (magic-link) users never set a password, and neither do admins
+      // who signed up through Google — only email+password admins need one.
       required: function () {
-        return this.role === 'admin';
+        return this.role === 'admin' && !this.googleId;
       },
       select: false, // never returned by default queries
+    },
+    // Google account subject id, set on first successful Google sign-in.
+    // Presence also exempts the account from the password requirement above.
+    googleId: {
+      type: String,
+      default: null,
+      index: true,
     },
     name: {
       type: String,

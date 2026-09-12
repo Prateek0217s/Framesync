@@ -2,7 +2,7 @@ const Comment = require('../models/Comment');
 const Project = require('../models/Project');
 const { emitToProject } = require('../socket');
 const { sendClientCommentEmail } = require('../utils/emailTemplates');
-const { getAdminEmailList } = require('../utils/notifyAdmins');
+const { getOwnerEmail } = require('../utils/notifyOwner');
 
 // GET /api/comments/project/:projectId — timestamped comments + vector data.
 // Access is authorized by middleware (admin or scoped client).
@@ -30,14 +30,15 @@ const createComment = async (req, res) => {
 
   emitToProject(projectId, 'comment:new', comment);
 
-  // Client feedback → email the agency (fire-and-forget, never blocks).
+  // Client feedback → email the agency that owns the project (fire-and-forget,
+  // never blocks).
   if (req.user.role === 'client') {
     (async () => {
       try {
-        const [project, to] = await Promise.all([
-          Project.findById(projectId).select('title').lean(),
-          getAdminEmailList(),
-        ]);
+        const project = await Project.findById(projectId)
+          .select('title ownerId')
+          .lean();
+        const to = await getOwnerEmail(project?.ownerId);
         if (project && to) {
           await sendClientCommentEmail({
             to,
@@ -57,10 +58,11 @@ const createComment = async (req, res) => {
 };
 
 // PATCH /api/comments/:id/resolve  (admin) — toggle + broadcast checkbox state.
+// req.comment is resolved and ownership-checked by authorizeCommentAccess.
 const resolveComment = async (req, res) => {
   const { resolved } = req.body;
   const comment = await Comment.findByIdAndUpdate(
-    req.params.id,
+    req.comment._id,
     { resolved },
     { new: true }
   );
@@ -75,7 +77,7 @@ const resolveComment = async (req, res) => {
 
 // DELETE /api/comments/:id  (admin)
 const deleteComment = async (req, res) => {
-  const comment = await Comment.findByIdAndDelete(req.params.id);
+  const comment = await Comment.findByIdAndDelete(req.comment._id);
   if (!comment) return res.status(404).json({ message: 'Comment not found' });
   res.json({ message: 'Comment removed' });
 };
