@@ -1,0 +1,47 @@
+# Render Blueprint — FrameSync API (Express + Socket.io + MongoDB Atlas)
+# Deploy via Render Dashboard: New > Blueprint > select this repo.
+# `sync: false` vars are secrets — Render prompts for them once and stores
+# them encrypted; they are never committed to the repo.
+services:
+  - type: web
+    name: framesync-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # MongoDB Atlas connection string (from your local server/.env)
+      - key: MONGO_URI
+        sync: false
+      # Fresh production secret (Render generates one) — client sessions
+      # minted locally with the dev secret simply re-login.
+      - key: JWT_SECRET
+        generateValue: true
+      # Deployed client origin — CORS allowlist + magic-link fallback.
+      # e.g. https://framesync.vercel.app
+      - key: CLIENT_URL
+        sync: false
+      # Render terminates TLS in front of the app (1 proxy hop) — needed so
+      # the approval audit records the real client IP, not Render's.
+      - key: TRUST_PROXY
+        value: "1"
+      # Disk-backed storage: media lands on the container's local disk and
+      # streams through /api/uploads/local (HMAC-signed URLs).
+      # NOTE: Render's free tier disk is EPHEMERAL — uploads are lost on
+      # every deploy/restart. Fine for demo; switch to STORAGE_MODE=s3
+      # (add AWS_* + S3_BUCKET_NAME vars in the Render dashboard) for real use.
+      - key: STORAGE_MODE
+        value: local
+      # ---- Email (optional — leave blank to log emails instead of sending) ----
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
